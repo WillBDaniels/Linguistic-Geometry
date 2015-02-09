@@ -1,5 +1,6 @@
 package edu.wdaniels.lg.proj1.gui;
 
+import edu.wdaniels.lg.proj1.FieldValidator;
 import edu.wdaniels.lg.proj1.Project1;
 import edu.wdaniels.lg.proj1.abg.DistanceFinder;
 import edu.wdaniels.lg.proj1.abg.Obstacle;
@@ -9,17 +10,17 @@ import edu.wdaniels.lg.proj1.structures.Triple;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -81,135 +82,29 @@ public class PrimaryController {
      *
      */
     @FXML
-    @SuppressWarnings("Convert2Lambda")
     public void initialize() {
         controller = this;
-        rb_2d.selectedProperty().addListener((ChangeListener) -> {
-            is2D = rb_2d.isSelected();
-            btn_display_table.setVisible(false);
-        });
-        lv_distance_piece_list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                if (newValue != null) {
-                    DistanceFinder df = new DistanceFinder();
-                    tc_piece_column.setCellValueFactory(
-                            new PropertyValueFactory<>("pieceName")
-                    );
-                    tc_distance_column.setCellValueFactory(
-                            new PropertyValueFactory<>("pieceDistance")
-                    );
-                    ArrayList<TableData> dataList = new ArrayList<>();
-                    if (!pieceList.isEmpty()) {
-                        tv_distances.getItems().clear();
-                        for (Piece piece : pieceList) {
-                            if (((Piece) newValue) != piece) {
-                                if (Integer.parseInt(tf_board_size.getText()) == 8) {
-                                    if (obstacleList.isEmpty() && is2D) {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece)));
-                                    }else{
-                                        if (is2D){
-                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
-                                        }else{
-                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
-                                        }
-                                    }
-                                } else {
-                                    if (is2D){
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
-                                    }else{
-                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    tv_distances.setItems(FXCollections.observableArrayList(dataList));
-                    btn_display_table.setVisible(true);
-                } else {
-                    btn_display_table.setVisible(false);
-                }
-            }
-        });
-        Project1.get_stage().setOnCloseRequest((EventHandler) -> {
-            if (addPieceStage != null && addPieceStage.isShowing()) {
-                addPieceStage.close();
-            }
-            if (addObstacleStage != null && addObstacleStage.isShowing()) {
-                addObstacleStage.close();
-            }
-
-        });
-        Project1.get_stage().heightProperty().addListener(new ChangeListener<Number>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
-                if (newValue.doubleValue() < 600) {
-                    Project1.get_stage().setHeight(oldValue.doubleValue());
-                }
-            }
-
-        });
-        Project1.get_stage().widthProperty().addListener(new ChangeListener<Number>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
-                if (newValue.doubleValue() < 800) {
-                    Project1.get_stage().setWidth(oldValue.doubleValue());
-                }
-            }
-
-        });
-        String expression = "(x <= y && x > 2)";
-        Boolean result;
-        Map<String, Integer> vars = new HashMap<>();
-        vars.put("x", 7);
-        vars.put("y", 6);
-
-        Project1.get_stage().setOnShown((WindowEvent) -> {
-            Project1.get_stage().widthProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue ov, Number oldValue, Number newValue) {
-                    if (lv_distance_piece_list.getWidth() < 300) {
-                        lv_distance_piece_list.setPrefWidth(tv_distances.getPrefWidth() + (newValue.doubleValue() - oldValue.doubleValue()));
-                    }
-                    tv_distances.setPrefWidth(tv_distances.getPrefWidth() + (newValue.doubleValue() - oldValue.doubleValue()));
-                }
-            });
-            Project1.get_stage().heightProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue ov, Number oldValue, Number newValue) {
-                    lv_pieces.setPrefHeight(lv_pieces.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
-                    lv_obstacles.setPrefHeight(lv_obstacles.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
-                    tp_main_display.setPrefHeight(tp_main_display.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
-                    tv_distances.setPrefHeight(tv_distances.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
-                }
-            });
-        });
-        tp_main_display.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
-            if (!newTab.textProperty().get().equalsIgnoreCase("distance table")) {
-                ta_error_pane.setText("I'm sorry, this feature isn't implemented yet. Please check again in "
-                        + "future versions of this program. ");
-                tp_main_display.getSelectionModel().select(oldTab);
-            }
-        });
+        setInitialListeners();
     }
 
     @FXML
     private void generateDistance() throws Exception {
+        if (!showInvalidFields()){
+            return;
+        }
         pi_indicator.setVisible(true);
         btn_display_table.setDisable(true);
         btn_generate.setDisable(true);
         btn_generate_test_board.setDisable(true);
         rb_2d.setDisable(true);
         rb_3d.setDisable(true);
+        tf_board_size.setDisable(true);
         Thread t = new Thread(() -> {
             BoardGenerator gen = new BoardGenerator();
             for (Piece piece : pieceList) {
-                
+
                 int boardSize = Integer.valueOf(tf_board_size.getText());
-                if (boardSize == 8 && is2D && obstacleList.isEmpty()){
+                if (boardSize == 8 && is2D && obstacleList.isEmpty()) {
                     boardSize = 15;
                 }
                 if (is2D) {
@@ -217,7 +112,7 @@ public class PrimaryController {
                 } else {
                     piece.setReachabilityThreeDMap(gen.generate3DBoard(piece, obstacleList, boardSize));
                 }
-                
+
 //                ThreeDBoardMaker temp = new ThreeDBoardMaker(boardSize);
 //
 //                temp.setMap(gen.generate3DBoard((Piece)lv_pieces.getItems().get(0), obstacleList, 8));
@@ -240,9 +135,10 @@ public class PrimaryController {
         btn_display_table.setDisable(false);
         btn_generate.setDisable(false);
         btn_generate_test_board.setDisable(false);
+        tf_board_size.setDisable(false);
         rb_2d.setDisable(false);
         rb_3d.setDisable(false);
-        
+
     }
 
     /**
@@ -272,7 +168,7 @@ public class PrimaryController {
         }
         addObstacleStage = new Stage(StageStyle.DECORATED);
         Parent root;
-        root = FXMLLoader.load(getClass().getResource("../fxml/AddObstacle.fxml"));
+        root = FXMLLoader.load(getClass().getResource("../fxml/AddNewObstacle.fxml"));
         Scene scene = new Scene(root);
 
         addObstacleStage.setScene(scene);
@@ -290,7 +186,7 @@ public class PrimaryController {
         }
         addPieceStage = new Stage(StageStyle.DECORATED);
         Parent root;
-        root = FXMLLoader.load(getClass().getResource("../fxml/AddPiece.fxml"));
+        root = FXMLLoader.load(getClass().getResource("../fxml/AddNewPiece.fxml"));
         Scene scene = new Scene(root);
 
         addPieceStage.setScene(scene);
@@ -480,63 +376,59 @@ public class PrimaryController {
     public int getBoardSize() {
         return Integer.valueOf(tf_board_size.getText());
     }
-    
-    
+
     @FXML
-    private void generateTestBoard(){
+    private void generateTestBoard() {
         pieceList.clear();
         obstacleList.clear();
         String whitePawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == 1))";
         String blackPawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == -1))";
         String kingRelation = "((y1-x1 <=1) && (y1-x1 >=-1)) && ((y2-x2 <=1) && (y2-x2 >=-1))";
-        
-        
+
         Piece wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7,
                 bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7,
                 wKing, wBish0, wBish1, wRook0, wRook1, wKnight0, wKnight1, wQueen,
                 bKing, bBish0, bBish1, bRook0, bRook1, bKnight0, bKnight1, bQueen;
         //White Pawns
-        wPawn0 = new Piece(new Triple(0,1,0),whitePawnRelation,"White Pawn 0");
-        wPawn1 = new Piece(new Triple(1,1,0),whitePawnRelation,"White Pawn 1");
-        wPawn2 = new Piece(new Triple(2,1,0),whitePawnRelation,"White Pawn 2");
-        wPawn3 = new Piece(new Triple(3,1,0),whitePawnRelation,"White Pawn 3");
-        wPawn4 = new Piece(new Triple(4,1,0),whitePawnRelation,"White Pawn 4");
-        wPawn5 = new Piece(new Triple(5,1,0),whitePawnRelation,"White Pawn 5");
-        wPawn6 = new Piece(new Triple(6,1,0),whitePawnRelation,"White Pawn 6");
-        wPawn7 = new Piece(new Triple(7,1,0),whitePawnRelation,"White Pawn 7");
-        
+        wPawn0 = new Piece(new Triple(0, 1, 0), whitePawnRelation, "White Pawn 0");
+        wPawn1 = new Piece(new Triple(1, 1, 0), whitePawnRelation, "White Pawn 1");
+        wPawn2 = new Piece(new Triple(2, 1, 0), whitePawnRelation, "White Pawn 2");
+        wPawn3 = new Piece(new Triple(3, 1, 0), whitePawnRelation, "White Pawn 3");
+        wPawn4 = new Piece(new Triple(4, 1, 0), whitePawnRelation, "White Pawn 4");
+        wPawn5 = new Piece(new Triple(5, 1, 0), whitePawnRelation, "White Pawn 5");
+        wPawn6 = new Piece(new Triple(6, 1, 0), whitePawnRelation, "White Pawn 6");
+        wPawn7 = new Piece(new Triple(7, 1, 0), whitePawnRelation, "White Pawn 7");
+
         //White Royalty
         wKing = new Piece(new Triple(4, 0, 0), kingRelation, "White King");
-        
+
         //Black Pawns
-        bPawn0 = new Piece(new Triple(0,6,0),blackPawnRelation,"Black Pawn 0");
-        bPawn1 = new Piece(new Triple(1,6,0),blackPawnRelation,"Black Pawn 1");
-        bPawn2 = new Piece(new Triple(2,6,0),blackPawnRelation,"Black Pawn 2");
-        bPawn3 = new Piece(new Triple(3,6,0),blackPawnRelation,"Black Pawn 3");
-        bPawn4 = new Piece(new Triple(4,6,0),blackPawnRelation,"Black Pawn 4");
-        bPawn5 = new Piece(new Triple(5,6,0),blackPawnRelation,"Black Pawn 5");
-        bPawn6 = new Piece(new Triple(6,6,0),blackPawnRelation,"Black Pawn 6");
-        bPawn7 = new Piece(new Triple(7,6,0),blackPawnRelation,"Black Pawn 7");
-        
+        bPawn0 = new Piece(new Triple(0, 6, 0), blackPawnRelation, "Black Pawn 0");
+        bPawn1 = new Piece(new Triple(1, 6, 0), blackPawnRelation, "Black Pawn 1");
+        bPawn2 = new Piece(new Triple(2, 6, 0), blackPawnRelation, "Black Pawn 2");
+        bPawn3 = new Piece(new Triple(3, 6, 0), blackPawnRelation, "Black Pawn 3");
+        bPawn4 = new Piece(new Triple(4, 6, 0), blackPawnRelation, "Black Pawn 4");
+        bPawn5 = new Piece(new Triple(5, 6, 0), blackPawnRelation, "Black Pawn 5");
+        bPawn6 = new Piece(new Triple(6, 6, 0), blackPawnRelation, "Black Pawn 6");
+        bPawn7 = new Piece(new Triple(7, 6, 0), blackPawnRelation, "Black Pawn 7");
+
         //Black Royalty
         bKing = new Piece(new Triple(3, 7, 0), kingRelation, "Black King");
 
-        
         tf_board_size.setText("8");
-        pieceList.addAll(Arrays.asList(wKing, bKing, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7
-        , bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7));
+        pieceList.addAll(Arrays.asList(wKing, bKing, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7, bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7));
         refreshPieceList();
-                
+
     }
-    
+
     @FXML
-    private void generatePieceTable(){
-        
-        Piece piece = (Piece)lv_distance_piece_list.getSelectionModel().getSelectedItem();
-        if (piece != null){
-            if (is2D){
+    private void generatePieceTable() {
+
+        Piece piece = (Piece) lv_distance_piece_list.getSelectionModel().getSelectedItem();
+        if (piece != null) {
+            if (is2D) {
                 piece.printBoard();
-            }else{
+            } else {
                 ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
                 coolBoard.setMap(piece.getReachabilityThreeDMap());
                 try {
@@ -546,6 +438,187 @@ public class PrimaryController {
                 }
             }
         }
-            
+
+    }
+
+    /**
+     * This method sets all of our listeners for the various text fields.
+     */
+    private void setInitialListeners() {
+        final FieldValidator fv = new FieldValidator();
+        Project1.get_stage().setOnShown((WindowEvent) -> {
+            Project1.get_stage().widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue ov, Number oldValue, Number newValue) {
+                    if (lv_distance_piece_list.getWidth() < 300) {
+                        lv_distance_piece_list.setPrefWidth(tv_distances.getPrefWidth() + (newValue.doubleValue() - oldValue.doubleValue()));
+                    }
+                    tv_distances.setPrefWidth(tv_distances.getPrefWidth() + (newValue.doubleValue() - oldValue.doubleValue()));
+                }
+            });
+            Project1.get_stage().heightProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue ov, Number oldValue, Number newValue) {
+                    lv_pieces.setPrefHeight(lv_pieces.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
+                    lv_obstacles.setPrefHeight(lv_obstacles.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
+                    tp_main_display.setPrefHeight(tp_main_display.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
+                    tv_distances.setPrefHeight(tv_distances.getHeight() + (newValue.doubleValue() - oldValue.doubleValue()));
+                }
+            });
+        });
+        tp_main_display.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
+            if (!newTab.textProperty().get().equalsIgnoreCase("distance table")) {
+                ta_error_pane.setText("I'm sorry, this feature isn't implemented yet. Please check again in "
+                        + "future versions of this program. ");
+                tp_main_display.getSelectionModel().select(oldTab);
+            }
+        });
+        tf_board_size.textProperty().addListener((ChangeListener) -> {
+            if (fv.integerValidator(tf_board_size.getText())) {
+                displayErrorAndStyle(tf_board_size, "Invalid TVD", tf_board_size.textProperty());
+            } else {
+                tf_board_size.getStyleClass().removeAll("bad", "good");
+                tf_board_size.getStyleClass().add("good");
+            }
+        });
+        rb_2d.selectedProperty().addListener((ChangeListener) -> {
+            is2D = rb_2d.isSelected();
+            btn_display_table.setVisible(false);
+        });
+        lv_distance_piece_list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                if (newValue != null) {
+                    DistanceFinder df = new DistanceFinder();
+                    tc_piece_column.setCellValueFactory(
+                            new PropertyValueFactory<>("pieceName")
+                    );
+                    tc_distance_column.setCellValueFactory(
+                            new PropertyValueFactory<>("pieceDistance")
+                    );
+                    ArrayList<TableData> dataList = new ArrayList<>();
+                    if (!pieceList.isEmpty()) {
+                        tv_distances.getItems().clear();
+                        for (Piece piece : pieceList) {
+                            if (((Piece) newValue) != piece) {
+                                if (Integer.parseInt(tf_board_size.getText()) == 8) {
+                                    if (obstacleList.isEmpty() && is2D) {
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece)));
+                                    } else {
+                                        if (is2D) {
+                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
+                                        } else {
+                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
+                                        }
+                                    }
+                                } else {
+                                    if (is2D) {
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
+                                    } else {
+                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    tv_distances.setItems(FXCollections.observableArrayList(dataList));
+                    btn_display_table.setVisible(true);
+                } else {
+                    btn_display_table.setVisible(false);
+                }
+            }
+        });
+        Project1.get_stage().setOnCloseRequest((EventHandler) -> {
+            if (addPieceStage != null && addPieceStage.isShowing()) {
+                addPieceStage.close();
+            }
+            if (addObstacleStage != null && addObstacleStage.isShowing()) {
+                addObstacleStage.close();
+            }
+
+        });
+        Project1.get_stage().heightProperty().addListener(new ChangeListener<Number>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
+                if (newValue.doubleValue() < 600) {
+                    Project1.get_stage().setHeight(oldValue.doubleValue());
+                }
+            }
+
+        });
+        Project1.get_stage().widthProperty().addListener(new ChangeListener<Number>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
+                if (newValue.doubleValue() < 800) {
+                    Project1.get_stage().setWidth(oldValue.doubleValue());
+                }
+            }
+
+        });
+    }
+
+    /**
+     * This method goes through the entire pane and finds which fields are
+     * invalid and displays a reasonable message accordingly to the user, in the
+     * form of an error popup. Unfortunately, there is no perfectly generic way
+     * to handle this method. I pretty much just have to go through every field
+     * and see if any of them are empty. We only have to do empty checks since
+     * the fields themselves handle the actual validation of proper input, and
+     * once they have text ever they can check for emptiness, but if they never
+     * get any input it won't work.
+     *
+     * @return false if any fields were invalid, true otherwise.
+     */
+    public boolean showInvalidFields() {
+        boolean wasValid = true;
+        if (tf_board_size.getText().isEmpty()) {
+            displayErrorAndStyle(tf_board_size, "Board Size Required", tf_board_size.textProperty());
+            wasValid = false;
+        } else if (tf_board_size.getStyleClass().contains("bad")) {
+            wasValid = false;
+        }
+        return wasValid;
+    }
+
+    /**
+     * This method prevents us from having to have a bunch of repetitive code in
+     * the showInvalidFields() method. sets an error label and gives the red
+     * highlighted styling to an individual node.
+     *
+     * @param node the node that we are styling and anchoring the error popup
+     * to.
+     * @param errorMessage the error message we are displaying in the popup.
+     */
+    private void displayErrorAndStyle(Node node, String errorMessage, final StringProperty textProperty) {
+        PopErrorWindow error = new PopErrorWindow();
+        PopErrorWindow.setCustomErrorMessage(errorMessage);
+        try {
+            error.PopErrorWindowShower(node.localToScene(node.getBoundsInLocal()).getMaxX() + 5, node.localToScene(node.getBoundsInLocal()).getMaxY());
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+        }
+        node.getStyleClass().removeAll("good", "bad");
+        node.getStyleClass().add("bad");
+        final ChangeListener change = (ChangeListener) (ObservableValue observable, Object oldValue, Object newValue) -> {
+            error.get_popup().hide();
+        };
+        textProperty.addListener((ChangeListener) -> {
+            error.get_popup().hide();
+        });
+        error.get_popup().setOnHidden((EventHandler) -> {
+            textProperty.removeListener(change);
+        });
+
+    }
+    
+    public Stage getAddPieceStage(){
+        return addPieceStage;
+    }
+    
+    public Stage getAddObstacleStage(){
+        return addObstacleStage;
     }
 }
