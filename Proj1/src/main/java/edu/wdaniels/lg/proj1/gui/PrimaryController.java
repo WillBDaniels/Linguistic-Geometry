@@ -59,7 +59,7 @@ public class PrimaryController {
     private TableView tv_distances;
 
     @FXML
-    private ListView lv_distance_piece_list, lv_pieces, lv_obstacles;
+    public ListView lv_distance_piece_list, lv_pieces, lv_obstacles;
 
     @FXML
     private TextArea ta_error_pane;
@@ -74,7 +74,7 @@ public class PrimaryController {
     private boolean is2D = true;
     private final ArrayList<Piece> pieceList = new ArrayList<>();
     private final ArrayList<Obstacle> obstacleList = new ArrayList<>();
-    private Stage addPieceStage, addObstacleStage;
+    private Stage addPieceStage, addObstacleStage, display2DStage;
 
     /**
      * This is the primary entry point into the program. Handled all of the
@@ -422,12 +422,27 @@ public class PrimaryController {
     }
 
     @FXML
-    private void generatePieceTable() {
+    private void generatePieceTable() throws IOException {
 
         Piece piece = (Piece) lv_distance_piece_list.getSelectionModel().getSelectedItem();
         if (piece != null) {
             if (is2D) {
-                piece.printBoard();
+                if (display2DStage != null && display2DStage.isShowing()) {
+                    display2DStage.requestFocus();
+                    return;
+                }
+                display2DStage = new Stage(StageStyle.DECORATED);
+                Parent root;
+                root = FXMLLoader.load(getClass().getResource("../fxml/Display2D.fxml"));
+                Scene scene = new Scene(root);
+
+                display2DStage.setScene(scene);
+                //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+                display2DStage.setTitle("Display 2D Table");
+                //mainStage.setResizable(true);
+                display2DStage.show();
+                
+                
             } else {
                 ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
                 coolBoard.setMap(piece.getReachabilityThreeDMap());
