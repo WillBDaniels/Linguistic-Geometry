@@ -6,9 +6,9 @@ apply plugin: 'maven'
 
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-def mainClassName = "edu.wdaniels.lg.proj1.Project1"
-def mainAppName = "LG Project 1"
-def versionNumber = "1.0"
+def mainClassName = "edu.wdaniels.lg.Main"
+def mainAppName = "LG Project 2"
+def versionNumber = "2.0"
 jfxJar.enabled = false;
 jfxCopyLibs.enabled = false;
 test {
@@ -17,7 +17,7 @@ test {
 }
 
 dependencies {
-    compile fileTree(dir: 'lib', includes: ['*.jar']) 
+    compile fileTree(dir: 'lib', includes: ['*.jar'])
     compile 'log4j:log4j:1.2.17'
     compile 'org.mvel:mvel2:2.2.4.Final'
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="primary_anchor" fx:id="primary_anchor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="22.0" prefWidth="188.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wdaniels.lg.gui.PopErrorController">
+    <children>
+        <Label id="top_error_label" fx:id="top_error_label" alignment="CENTER" contentDisplay="CENTER" prefHeight="22.0" prefWidth="305.0" text="Invalid Entry" textFill="RED">
+            <font>
+                <Font name="Tahoma Bold" size="12.0" />
+            </font>
+        </Label>
+    </children>
+    <stylesheets>
+        <URL value="@../css/Primary.css" />
+    </stylesheets>
+</AnchorPane>
