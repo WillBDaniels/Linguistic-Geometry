@@ -3,3 +3,12 @@
 /Proj1/.gradle
 /Proj1/private
 /Proj1/out
+build/
+.nb-gradle/
+.nb-gradle-properties
+private/
+out/
+*.synctex.gz
+*.aux
+*.log
+.gradle/
