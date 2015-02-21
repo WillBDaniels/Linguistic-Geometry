@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.wdaniels.lg.proj1.gui;
 
 import java.util.ArrayList;
@@ -34,10 +29,10 @@ public class GridBuilder extends CubeViewer {
         int x, y = 0, z = 0;
         for (int i = 0; i < super.getzAxisData().size(); i++) {
             x = i % (map.length);
-            if (x == 0 && i != 0){
-                if (y + 1 < map.length)
+            if (x == 0 && i != 0) {
+                if (y + 1 < map.length) {
                     y++;
-                else{
+                } else {
                     y = 0;
                     z++;
                 }
@@ -56,65 +51,64 @@ public class GridBuilder extends CubeViewer {
             dataSphere.setTranslateX(translateX);
             dataSphere.setTranslateY(translateY);
             dataSphere.setTranslateZ(super.getzAxisData().get(i));
-                switch (map[z][y][x]) {
-                   
-                    case 1: {
-                        PhongMaterial blueMaterial = new PhongMaterial();
-                        blueMaterial.setDiffuseColor(Color.DARKBLUE);
-                        dataSphere.setMaterial(blueMaterial);
-                        break;
-                    }
-                    case 2: {
-                        PhongMaterial beigeMaterial = new PhongMaterial();
-                        beigeMaterial.setDiffuseColor(Color.ORANGE);
-                        dataSphere.setMaterial(beigeMaterial);
-                        break;
-                    }
-                    case 3: {
-                        PhongMaterial chartreuseMaterial = new PhongMaterial();
-                        chartreuseMaterial.setDiffuseColor(Color.RED);
-                        dataSphere.setMaterial(chartreuseMaterial);
-                        break;
-                    }
-                    case 4: {
-                        PhongMaterial cornsilkMaterial = new PhongMaterial();
-                        cornsilkMaterial.setDiffuseColor(Color.PURPLE);
-                        dataSphere.setMaterial(cornsilkMaterial);
-                        break;
-                    }
-                    case 5: {
-                        PhongMaterial darkGreenMaterial = new PhongMaterial();
-                        darkGreenMaterial.setDiffuseColor(Color.GREEN);
-                        dataSphere.setMaterial(darkGreenMaterial);
-                        break;
-                    }
-                    case 6: {
-                        PhongMaterial yellowGreenMaterial = new PhongMaterial();
-                        yellowGreenMaterial.setDiffuseColor(Color.WHITE);
-                        dataSphere.setMaterial(yellowGreenMaterial);
-                        break;
-                    }
-                    case 7: {
-                        PhongMaterial redmaterial = new PhongMaterial();
-                        redmaterial.setDiffuseColor(Color.AQUA);
-                        dataSphere.setMaterial(redmaterial);
-                        break;
-                    }
-                    case 8: {
-                        PhongMaterial purpleMaterial = new PhongMaterial();
-                        purpleMaterial.setDiffuseColor(Color.PINK);
-                        dataSphere.setMaterial(purpleMaterial);
-                        break;
-                    }
-                    default:{
-                        PhongMaterial blackMaterial = new PhongMaterial();
-                        blackMaterial.setDiffuseColor(Color.BLACK);
-                        dataSphere.setMaterial(blackMaterial);
-                        break;
-                    }
+            switch (map[z][y][x]) {
 
+                case 1: {
+                    PhongMaterial blueMaterial = new PhongMaterial();
+                    blueMaterial.setDiffuseColor(Color.DARKBLUE);
+                    dataSphere.setMaterial(blueMaterial);
+                    break;
                 }
-            
+                case 2: {
+                    PhongMaterial beigeMaterial = new PhongMaterial();
+                    beigeMaterial.setDiffuseColor(Color.ORANGE);
+                    dataSphere.setMaterial(beigeMaterial);
+                    break;
+                }
+                case 3: {
+                    PhongMaterial chartreuseMaterial = new PhongMaterial();
+                    chartreuseMaterial.setDiffuseColor(Color.RED);
+                    dataSphere.setMaterial(chartreuseMaterial);
+                    break;
+                }
+                case 4: {
+                    PhongMaterial cornsilkMaterial = new PhongMaterial();
+                    cornsilkMaterial.setDiffuseColor(Color.PURPLE);
+                    dataSphere.setMaterial(cornsilkMaterial);
+                    break;
+                }
+                case 5: {
+                    PhongMaterial darkGreenMaterial = new PhongMaterial();
+                    darkGreenMaterial.setDiffuseColor(Color.GREEN);
+                    dataSphere.setMaterial(darkGreenMaterial);
+                    break;
+                }
+                case 6: {
+                    PhongMaterial yellowGreenMaterial = new PhongMaterial();
+                    yellowGreenMaterial.setDiffuseColor(Color.WHITE);
+                    dataSphere.setMaterial(yellowGreenMaterial);
+                    break;
+                }
+                case 7: {
+                    PhongMaterial redmaterial = new PhongMaterial();
+                    redmaterial.setDiffuseColor(Color.AQUA);
+                    dataSphere.setMaterial(redmaterial);
+                    break;
+                }
+                case 8: {
+                    PhongMaterial purpleMaterial = new PhongMaterial();
+                    purpleMaterial.setDiffuseColor(Color.PINK);
+                    dataSphere.setMaterial(purpleMaterial);
+                    break;
+                }
+                default: {
+                    PhongMaterial blackMaterial = new PhongMaterial();
+                    blackMaterial.setDiffuseColor(Color.BLACK);
+                    dataSphere.setMaterial(blackMaterial);
+                    break;
+                }
+
+            }
 
             scatterDataGroup.getChildren().add(dataSphere);
         }
@@ -142,51 +136,6 @@ public class GridBuilder extends CubeViewer {
             dataSphere.setTranslateX(super.getxAxisData().get(i));
             dataSphere.setTranslateY(translateY);
             dataSphere.setTranslateZ(translateZ);
-            if (i < map.length){
-//                switch (map[i][i][i]) {
-//                    case 1: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.DARKBLUE);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 2: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.BEIGE);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 3: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.CHARTREUSE);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 4: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.CORNSILK);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 5: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.DARKGREEN);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 6: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.YELLOWGREEN);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 7: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.RED);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//                    case 8: {
-//                        final PhongMaterial blueMaterial = new PhongMaterial();
-//                        blueMaterial.setDiffuseColor(Color.PURPLE);
-//                        dataSphere.setMaterial(blueMaterial);
-//                    }
-//
-//                }
-            }
             scatterDataGroup.getChildren().add(dataSphere);
         }
     }
@@ -212,7 +161,7 @@ public class GridBuilder extends CubeViewer {
             dataSphere.setTranslateX(translateX);
             dataSphere.setTranslateY(super.getyAxisData().get(i));
             dataSphere.setTranslateZ(translateZ);
-            if (i < map.length){
+            if (i < map.length) {
 //                switch (map[i][i][i]) {
 //                    case 1: {
 //                        final PhongMaterial blueMaterial = new PhongMaterial();

@@ -1,0 +1,87 @@
+ \documentclass[11pt]{article}
+
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{enumerate}
+
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\setlength{\evensidemargin}{1in}
+\addtolength{\evensidemargin}{-1in}
+\setlength{\oddsidemargin}{1.5in}
+\addtolength{\oddsidemargin}{-1.5in}
+\setlength{\topmargin}{1in}
+\addtolength{\topmargin}{-1.5in}
+
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{23cm}
+
+\newcommand{\rook}{\hspace{-.1cm}\amalg\hspace{-.15cm}\bar{}}
+\newcommand{\Stab}{\mathrm{Stab}}
+\newcommand{\FF}{\mathbb{F}}
+
+
+\begin{document}
+\begin{center}
+\section*{William Daniels}
+\section*{CSCI 4630}
+\subsection*{Linguistic Geometry}
+\subsection*{Homework \#3 02/15/15}
+\end{center}
+
+\vspace{.25cm}
+
+\begin{enumerate}
+\item \textbf{problem 6:}
+\begin{enumerate}[(a)]
+\item Show the generation of the shortest trajectories for the king from a4 to h4 on the standard chess board. Show at least four steps of the generation of one of the trajectories in details (show all sets and functions). \\\\
+$S(x,y,l) = S(a4, h4, 8)$
+\begin{align*}
+&\overset{\mathcal{Q}_1}{\rightarrow} A(a4, h4, 8)\\
+&\overset{\mathcal{Q}_2}{\rightarrow} a(a4)A(\textbf{next}_1 (a4, 8), h4, 7)\\
+&\rightarrow a(a4)A(b4, h4, 7)\\
+&\overset{\mathcal{Q}_2}{\rightarrow} a(a4)a(b4)A(\textbf{next}_1 (a4, 7), h4, 6)\\
+&\rightarrow a(a4)a(b4)A(c4, h4, 6)\\
+&\overset{\mathcal{Q}_2}{\rightarrow} a(a4)a(b4)a(c4)A(\textbf{next}_1 (a4, 6), h4, 5)\\
+&\rightarrow a(a4)a(b4)a(c4)A(d4, h4, 6)\\
+&\overset{\mathcal{Q}_2}{\rightarrow}a(a4)a(b4)a(c4)a(d4)A(\textbf{next}_1 (a4, 5), h4, 5)\\
+\end{align*}
+\item How many shortest trajectories from a4 to h4? \\\\
+There are 56 trajectories (8 choose 3). This is because the king moving diagonally is equal to the king moving just horizontally. The king can also alternate diagonal and horizontal, creating the 'choose' effect. 
+\item Does the grammar $G_t^(1)$ generate all of them? Explain. \\\\
+Yes it does. By simply choosing a different random value of $i$ each time, you will be able to eventually generate all shortest trajectories from any point to another, external circumstances (new obstacle, etc. etc.) notwithstanding. 
+\item Generate (in details) all the shortest trajectories for the Queen for the following cases. Reachability relations for the Queen were shown in the ass-t 1. (d1) from d2 to b7 (d2) from e2 to h5
+\end{enumerate}
+\item \textbf{problem 7:}
+Generate all the admissible degree 2 trajectories $t_K(f2, c6, 8)$ for the robot King and area X shown below. \\\\
+\begin{enumerate}
+\item trajectory 1: 
+$$f2 \rightarrow f3  \rightarrow  g4  \rightarrow g5  \rightarrow g6 \textbf{ (dock point)}  \rightarrow f7  \rightarrow e7  \rightarrow d7 \rightarrow c7  \rightarrow c6$$
+Now, since there are, 17 dock points, each with a small multitude of potential trajectories (all of which are shortest with degree 2), it would be quite unrealistic to list them all, so I will simply use a few of them, in hopes of proving the point. 
+\item trajectory 2: 
+$$e2  \rightarrow d2  \rightarrow  c2  \rightarrow  b2 \rightarrow b3  \rightarrow  a4 \textbf{ (dock point)}  \rightarrow  b5  \rightarrow  c6$$
+\item trajectory 3: 
+$$e2  \rightarrow d2  \rightarrow  c2  \rightarrow  b1 \textbf{ (dock point)} \rightarrow a2  \rightarrow  b3  \rightarrow  b4  \rightarrow  c5 \rightarrow c6$$
+\end{enumerate}
+\item \textbf{Problem 8:}\\
+\begin{enumerate}[(a)]
+\item Generate all the shortest and admissible trajectories degree 2 or the Queen from c2 to b4 on the starndard chess board. 
+\item What is the length of these trajectories ? Are there other trajectories of the same length for the Queen between these points? 
+They are all of length 3, since all shortest trajectories are of length 2. All trajectories between these two points of length 3, are admissable trajectories of degree 2, there are no others. 
+\item Can we use grammar $G_t^(1)$ to generate all the trajectories for the Queen of length 1 and 2? if not -- why, and how can it be modified? \\\
+Yes we can, because all trajectories of length 1 and 2 can be modeled using simple shortest trajectories with different, radially expanding points. 
+\item can grammar $G_t^(2)$ generate all the trajectories of the length 3 and 4 for the queen ( not only admissible of degree 2)? If not, how can it be modified. \\\\
+No, we cannot, because the grammar $G_t^(2)$ is only suitable for trajectories of degree 2, where with trajectories of length 4, you would start seeing higher degree trajectories. To modify it, you'd have to somehow allow for higher degree trajectories. I'm not sure how to do that. Boris mentioned it might be extra credit. s
+\end{enumerate}
+\end{enumerate}
+
+
+
+
+\end{document}
+

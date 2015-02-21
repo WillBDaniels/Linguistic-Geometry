@@ -71,9 +71,9 @@ public class PrimaryController {
     @FXML
     private RadioButton rb_2d, rb_3d;
 
-    private boolean is2D = true;
+    public boolean is2D = true;
     private final ArrayList<Piece> pieceList = new ArrayList<>();
-    private final ArrayList<Obstacle> obstacleList = new ArrayList<>();
+    public final ArrayList<Obstacle> obstacleList = new ArrayList<>();
     private Stage addPieceStage, addObstacleStage, display2DStage;
 
     /**
@@ -89,7 +89,7 @@ public class PrimaryController {
 
     @FXML
     private void generateDistance() throws Exception {
-        if (!showInvalidFields()){
+        if (!showInvalidFields()) {
             return;
         }
         pi_indicator.setVisible(true);
@@ -108,7 +108,11 @@ public class PrimaryController {
                     boardSize = 15;
                 }
                 if (is2D) {
-                    piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize));
+                    if (boardSize == 15 && obstacleList.isEmpty()) {
+                        piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, true));
+                    } else {
+                        piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, false));
+                    }
                 } else {
                     piece.setReachabilityThreeDMap(gen.generate3DBoard(piece, obstacleList, boardSize));
                 }
@@ -441,8 +445,7 @@ public class PrimaryController {
                 display2DStage.setTitle("Display 2D Table");
                 //mainStage.setResizable(true);
                 display2DStage.show();
-                
-                
+
             } else {
                 ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
                 coolBoard.setMap(piece.getReachabilityThreeDMap());
@@ -628,12 +631,12 @@ public class PrimaryController {
         });
 
     }
-    
-    public Stage getAddPieceStage(){
+
+    public Stage getAddPieceStage() {
         return addPieceStage;
     }
-    
-    public Stage getAddObstacleStage(){
+
+    public Stage getAddObstacleStage() {
         return addObstacleStage;
     }
 }

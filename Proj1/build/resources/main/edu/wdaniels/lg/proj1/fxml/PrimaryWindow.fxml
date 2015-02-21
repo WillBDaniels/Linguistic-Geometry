@@ -79,7 +79,7 @@
          <bottom>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0" BorderPane.alignment="CENTER">
                <children>
-                  <TextArea fx:id="ta_error_pane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" prefWidth="465.0" wrapText="true">
+                  <TextArea fx:id="ta_error_pane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="87.0" prefWidth="352.0" wrapText="true">
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
@@ -94,7 +94,7 @@
                         </Button>
                      </children>
                   </VBox>
-                  <FlowPane hgap="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="97.0" prefWidth="497.0" vgap="10.0">
+                  <FlowPane hgap="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="97.0" prefWidth="590.0" vgap="10.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -108,7 +108,7 @@
                            </toggleGroup>
                         </RadioButton>
                         <RadioButton fx:id="rb_3d" mnemonicParsing="false" text="3D Table" toggleGroup="$tg_dimension" />
-                        <Label prefHeight="17.0" prefWidth="142.0" />
+                        <Label prefHeight="17.0" prefWidth="255.0" />
                         <Label styleClass="basicLabel" text="Size of Board (Square or Cube only)" />
                         <TextField fx:id="tf_board_size" promptText="Please enter a number" />
                         <Button fx:id="btn_generate_test_board" mnemonicParsing="false" onAction="#generateTestBoard" text="Generate Test Board" />
