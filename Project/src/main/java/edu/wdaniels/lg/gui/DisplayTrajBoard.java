@@ -38,19 +38,21 @@ public class DisplayTrajBoard {
         }
         List<Circle> circleList = new ArrayList<>();
         Circle temp;
-        for (Triple location : PrimaryController.getController().trajectoryList) {
-            temp = new Circle((Integer) location.getThird(), (Integer) location.getSecond(), 5);
-            temp.setLayoutX((Integer) location.getThird() * 40 + 20);
-            temp.setLayoutY((Integer) location.getSecond() * 40 + 20);
-            temp.setFill(Color.RED);
-            circleList.add(temp);
+        for (int j = 0; j < PrimaryController.getController().trajectoryList.size(); j++) {
+            for (Triple location : PrimaryController.getController().trajectoryList.get(j)) {
+                temp = new Circle(3);
+                temp.setLayoutX(((Integer) location.getThird() * 40) + 20);
+                temp.setLayoutY(((Integer) location.getSecond() * 40) + 20);
+                temp.setFill(Color.RED);
+                circleList.add(temp);
+            }
         }
         circleList.remove(circleList.size() - 1);
         List<Line> lineList = new ArrayList<>();
         for (int i = 0; i < circleList.size() - 1; i++) {
             Line tempLine = new Line();
-            tempLine.setFill(Color.BLUE);
-            tempLine.setStrokeWidth(3);
+            tempLine.setStrokeWidth(2);
+            tempLine.setStroke(Color.GREEN);
             tempLine.setStartX(circleList.get(i).getLayoutX());
             tempLine.setStartY(circleList.get(i).getLayoutY());
             tempLine.setEndX(circleList.get(i + 1).getLayoutX());

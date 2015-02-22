@@ -3,6 +3,8 @@ package edu.wdaniels.lg.abg;
 import edu.wdaniels.lg.gui.BoardGenerator;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * This class is simply a collection of methods (functions) which are used
@@ -79,36 +81,29 @@ public class ControlledGrammarFunctions {
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
         int length = st2.length;
-        Triple returnTriple = null;
         int choice = 0;
-        System.out.println("st1: ");
-        printSummedMap(st1);
-        System.out.println("st2:");
-        printSummedMap(st2);
-        System.out.println("Thi is the current marker map: ");
-        printSummedMap(markerMap);
+        List<Triple<Integer, Integer, Integer>> availableOptions = new ArrayList<>();
 
         for (int x = 0; x < length; x++) {
             for (int y = 0; y < length; y++) {
                 for (int z = 0; z < length; z++) {
                     if ((sum[x][y][z] > 0) && (st1[x][y][z] > 0) && (st2[x][y][z] > 0)) {
-                        if (choice == i) {
-                            if (markerMap[x][y][z]) {
-                                i++;
-                            } else {
-                                markerMap[x][y][z] = true;
-
-                                returnTriple = new Triple(y, x, z);
-                            }
-                            choice++;
-                        } else {
-                            choice++;
+                        if (!markerMap[x][y][z]) {
+                            availableOptions.add(new Triple(y, x, z));
                         }
                     }
                 }
             }
         }
-        return returnTriple;
+        if (availableOptions.isEmpty()) {
+            return null;
+        }
+        choice = randInt(0, availableOptions.size() - 1);
+
+        Triple<Integer, Integer, Integer> choiceTriple = availableOptions.get(choice);
+        markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
+
+        return choiceTriple;
     }
 
     public int[][][] sum(Piece start, Piece target, int length) {
@@ -145,6 +140,29 @@ public class ControlledGrammarFunctions {
             }
             System.out.println("\n");
         }
+    }
+
+    /**
+     * Returns a pseudo-random number between min and max, inclusive. The
+     * difference between min and max can be at most
+     * <code>Integer.MAX_VALUE - 1</code>.
+     *
+     * @param min Minimum value
+     * @param max Maximum value. Must be greater than min.
+     * @return Integer between min and max, inclusive.
+     * @see java.util.Random#nextInt(int)
+     */
+    public int randInt(int min, int max) {
+
+        // NOTE: Usually this should be a field rather than a method
+        // variable so that it is not re-seeded every call.
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
     }
 
     private void printSummedMap(boolean[][][] inputMap) {

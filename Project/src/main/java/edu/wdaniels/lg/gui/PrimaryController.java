@@ -74,7 +74,8 @@ public class PrimaryController {
     private RadioButton rb_2d, rb_3d;
 
     public boolean is2D = true;
-    public List<Triple<Integer, Integer, Integer>> trajectoryList;
+    public List<List<Triple<Integer, Integer, Integer>>> trajectoryList = new ArrayList<>();
+    public List<Triple<Integer, Integer, Integer>> trajectory;
     private final ArrayList<Piece> pieceList = new ArrayList<>();
     public final ArrayList<Obstacle> obstacleList = new ArrayList<>();
     private Stage addPieceStage, addObstacleStage, display2DStage, displayTraj2D;
@@ -94,8 +95,13 @@ public class PrimaryController {
     private void displayTrajectories() throws IOException {
         Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
         Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
-        GrammarGt1 gt1 = new GrammarGt1(getBoardSize(), Integer.valueOf(tf_traj_length.getText()), start, target);
-        trajectoryList = gt1.produceTrajectory();
+
+        int count = 0;
+        while (trajectoryList.size() < getBoardSize() * 2 && count < getBoardSize() * 2) {
+            GrammarGt1 gt1 = new GrammarGt1(getBoardSize(), Integer.valueOf(tf_traj_length.getText()), start, target);
+            trajectoryList.add(gt1.produceTrajectory());
+            count++;
+        }
 
         if (is2D) {
             if (displayTraj2D != null && displayTraj2D.isShowing()) {
