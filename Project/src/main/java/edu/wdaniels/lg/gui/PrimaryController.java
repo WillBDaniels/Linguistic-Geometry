@@ -3,6 +3,7 @@ package edu.wdaniels.lg.gui;
 import edu.wdaniels.lg.FieldValidator;
 import edu.wdaniels.lg.Main;
 import edu.wdaniels.lg.abg.DistanceFinder;
+import edu.wdaniels.lg.abg.GrammarGt1;
 import edu.wdaniels.lg.abg.Obstacle;
 import edu.wdaniels.lg.abg.Piece;
 import edu.wdaniels.lg.structures.TableData;
@@ -10,6 +11,7 @@ import edu.wdaniels.lg.structures.Triple;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -51,7 +53,7 @@ public class PrimaryController {
     private TableColumn tc_distance_column, tc_piece_column;
 
     @FXML
-    private Button btn_display_table, btn_generate, btn_generate_test_board;
+    private Button btn_display_table, btn_generate, btn_generate_test_board, btn_traj_display;
 
     @FXML
     private TabPane tp_main_display;
@@ -59,12 +61,12 @@ public class PrimaryController {
     private TableView tv_distances;
 
     @FXML
-    public ListView lv_distance_piece_list, lv_pieces, lv_obstacles;
+    public ListView lv_distance_piece_list, lv_pieces, lv_obstacles, lv_traj_starting, lv_traj_target;
 
     @FXML
     private TextArea ta_error_pane;
     @FXML
-    private TextField tf_board_size;
+    private TextField tf_board_size, tf_traj_length;
     @FXML
     private ProgressIndicator pi_indicator;
 
@@ -72,9 +74,10 @@ public class PrimaryController {
     private RadioButton rb_2d, rb_3d;
 
     public boolean is2D = true;
+    public List<Triple<Integer, Integer, Integer>> trajectoryList;
     private final ArrayList<Piece> pieceList = new ArrayList<>();
     public final ArrayList<Obstacle> obstacleList = new ArrayList<>();
-    private Stage addPieceStage, addObstacleStage, display2DStage;
+    private Stage addPieceStage, addObstacleStage, display2DStage, displayTraj2D;
 
     /**
      * This is the primary entry point into the program. Handled all of the
@@ -85,6 +88,41 @@ public class PrimaryController {
     public void initialize() {
         controller = this;
         setInitialListeners();
+    }
+
+    @FXML
+    private void displayTrajectories() throws IOException {
+        Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
+        Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
+        GrammarGt1 gt1 = new GrammarGt1(getBoardSize(), Integer.valueOf(tf_traj_length.getText()), start, target);
+        trajectoryList = gt1.produceTrajectory();
+
+        if (is2D) {
+            if (displayTraj2D != null && displayTraj2D.isShowing()) {
+                displayTraj2D.requestFocus();
+                return;
+            }
+            displayTraj2D = new Stage(StageStyle.DECORATED);
+            Parent root;
+            root = FXMLLoader.load(getClass().getResource("../fxml/DisplayTraj2D.fxml"));
+            Scene scene = new Scene(root);
+
+            displayTraj2D.setScene(scene);
+            //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+            displayTraj2D.setTitle("Display 2D Trajectory Table");
+            //mainStage.setResizable(true);
+            displayTraj2D.show();
+
+        } else {
+//                ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
+//                coolBoard.setMap(piece.getReachabilityThreeDMap());
+//                try {
+//                    coolBoard.start();
+//                } catch (Exception ex) {
+//                    Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+        }
+
     }
 
     @FXML
@@ -116,22 +154,66 @@ public class PrimaryController {
                 } else {
                     piece.setReachabilityThreeDMap(gen.generate3DBoard(piece, obstacleList, boardSize));
                 }
-
-//                ThreeDBoardMaker temp = new ThreeDBoardMaker(boardSize);
-//
-//                temp.setMap(gen.generate3DBoard((Piece)lv_pieces.getItems().get(0), obstacleList, 8));
-//
-//                try {
-//                    temp.start();
-//                } catch (Exception ex) {
-//                    Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
-//                }
             }
             refreshDistancePieceList();
+            refreshTrajectoryPieceList();
             finished();
         });
         t.start();
 
+    }
+
+    private void refreshTrajectoryPieceList() {
+        Platform.runLater(() -> {
+
+            lv_traj_starting.setItems(null);
+            ObservableList<Piece> items = FXCollections.observableArrayList(pieceList);
+            lv_traj_starting.setItems(items);
+            lv_traj_starting.setCellFactory(new Callback<ListView<Piece>, ListCell<Piece>>() {
+
+                @Override
+                public ListCell<Piece> call(ListView<Piece> p) {
+
+                    ListCell<Piece> cell = new ListCell<Piece>() {
+
+                        @Override
+                        protected void updateItem(Piece t, boolean bln) {
+                            super.updateItem(t, bln);
+                            if (t != null) {
+                                setText(t.getPieceName() + ": Location: " + t.getLocation());
+
+                            }
+                        }
+
+                    };
+
+                    return cell;
+                }
+            });
+            lv_traj_target.setItems(null);
+            lv_traj_target.setItems(items);
+            lv_traj_target.setCellFactory(new Callback<ListView<Piece>, ListCell<Piece>>() {
+
+                @Override
+                public ListCell<Piece> call(ListView<Piece> p) {
+
+                    ListCell<Piece> cell = new ListCell<Piece>() {
+
+                        @Override
+                        protected void updateItem(Piece t, boolean bln) {
+                            super.updateItem(t, bln);
+                            if (t != null) {
+                                setText(t.getPieceName() + ": Location: " + t.getLocation());
+
+                            }
+                        }
+
+                    };
+
+                    return cell;
+                }
+            });
+        });
     }
 
     public void finished() {
@@ -431,6 +513,7 @@ public class PrimaryController {
         Piece piece = (Piece) lv_distance_piece_list.getSelectionModel().getSelectedItem();
         if (piece != null) {
             if (is2D) {
+                piece.printBoard();
                 if (display2DStage != null && display2DStage.isShowing()) {
                     display2DStage.requestFocus();
                     return;
@@ -462,7 +545,9 @@ public class PrimaryController {
     /**
      * This method sets all of our listeners for the various text fields.
      */
+    @SuppressWarnings("Convert2Lambda")
     private void setInitialListeners() {
+
         final FieldValidator fv = new FieldValidator();
         Main.get_stage().setOnShown((WindowEvent) -> {
             Main.get_stage().widthProperty().addListener(new ChangeListener<Number>() {
@@ -485,7 +570,7 @@ public class PrimaryController {
             });
         });
         tp_main_display.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
-            if (!newTab.textProperty().get().equalsIgnoreCase("distance table")) {
+            if (!newTab.textProperty().get().equalsIgnoreCase("distance table") && !newTab.textProperty().get().equalsIgnoreCase("trajectories")) {
                 ta_error_pane.setText("I'm sorry, this feature isn't implemented yet. Please check again in "
                         + "future versions of this program. ");
                 tp_main_display.getSelectionModel().select(oldTab);
@@ -493,16 +578,41 @@ public class PrimaryController {
         });
         tf_board_size.textProperty().addListener((ChangeListener) -> {
             if (fv.integerValidator(tf_board_size.getText())) {
-                displayErrorAndStyle(tf_board_size, "Invalid TVD", tf_board_size.textProperty());
+                displayErrorAndStyle(tf_board_size, "Invalid Board Size", tf_board_size.textProperty());
             } else {
                 tf_board_size.getStyleClass().removeAll("bad", "good");
                 tf_board_size.getStyleClass().add("good");
             }
         });
+        tf_traj_length.textProperty().addListener((ChangeListener) -> {
+            if (fv.integerValidator(tf_traj_length.getText())) {
+                displayErrorAndStyle(tf_traj_length, "Invalid Trajectory Length", tf_traj_length.textProperty());
+            } else {
+                tf_traj_length.getStyleClass().removeAll("bad", "good");
+                tf_traj_length.getStyleClass().add("good");
+            }
+            allTrajectoryItemsSelected();
+        });
         rb_2d.selectedProperty().addListener((ChangeListener) -> {
             is2D = rb_2d.isSelected();
             btn_display_table.setVisible(false);
         });
+
+        lv_traj_starting.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object t, Object t1) {
+                allTrajectoryItemsSelected();
+            }
+
+        });
+        lv_traj_target.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object t, Object t1) {
+                allTrajectoryItemsSelected();
+            }
+
+        });
+
         lv_distance_piece_list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
 
             @Override
@@ -542,6 +652,7 @@ public class PrimaryController {
                     }
                     tv_distances.setItems(FXCollections.observableArrayList(dataList));
                     btn_display_table.setVisible(true);
+
                 } else {
                     btn_display_table.setVisible(false);
                 }
@@ -576,6 +687,16 @@ public class PrimaryController {
             }
 
         });
+    }
+
+    private void allTrajectoryItemsSelected() {
+        if (!tf_traj_length.getText().isEmpty() && (lv_traj_starting.getSelectionModel().getSelectedItem() != null)
+                && (lv_traj_target.getSelectionModel().getSelectedItem() != null)) {
+            btn_traj_display.setVisible(true);
+        } else {
+            btn_traj_display.setVisible(false);
+        }
+
     }
 
     /**

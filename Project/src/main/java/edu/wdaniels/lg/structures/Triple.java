@@ -14,8 +14,8 @@ public class Triple<T, U, V> implements Comparable<Triple> {
     private V thirdItem;
 
     /**
-     * This is the default constructor of the Triple object that takes in a first
-     * and a second value.
+     * This is the default constructor of the Triple object that takes in a
+     * first and a second value.
      *
      * @param first the first value in the Triple
      * @param second The second value in the Triple
@@ -52,8 +52,8 @@ public class Triple<T, U, V> implements Comparable<Triple> {
     public void setSecond(U input) {
         secondItem = input;
     }
-    
-    public void setThird(V input){
+
+    public void setThird(V input) {
         thirdItem = input;
     }
 
@@ -74,19 +74,19 @@ public class Triple<T, U, V> implements Comparable<Triple> {
     public U getSecond() {
         return secondItem;
     }
-    
-    public V getThird(){
+
+    public V getThird() {
         return thirdItem;
     }
 
     @Override
     public String toString() {
-        return (firstItem + ", " + secondItem + ", " + thirdItem);
+        return ("(" + firstItem + ", " + secondItem + ", " + thirdItem + " )");
     }
 
     @Override
     public int compareTo(Triple t) {
-        if ((this.firstItem == t.firstItem) && (this.secondItem == t.secondItem) && (this.thirdItem == t.thirdItem)){
+        if ((this.firstItem == t.firstItem) && (this.secondItem == t.secondItem) && (this.thirdItem == t.thirdItem)) {
             return 1;
         }
         return -1;

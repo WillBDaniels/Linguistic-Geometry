@@ -38,7 +38,7 @@ public class ChessBoard {
                 Label label = new Label();
                 if (gridFill != null) {
                     label.setStyle("-fx-text-fill: green;");
-                    label.setText(String.valueOf(gridFill[col][row] - 1));
+                    label.setText(String.valueOf(gridFill[row][col] - 1));
                     square.getChildren().add(label);
                 }
                 String color;
