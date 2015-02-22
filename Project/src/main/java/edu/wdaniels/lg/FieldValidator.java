@@ -1,4 +1,4 @@
-package edu.wdaniels.lg.proj1;
+package edu.wdaniels.lg;
 
 import java.util.regex.Pattern;
 
@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 public class FieldValidator {
 
     /**
-     * Validates a field to see if it's a decimal number. 
-     * 
+     * Validates a field to see if it's a decimal number.
+     *
      * @param field
-     * @return 
+     * @return
      */
     public boolean decimalValidator(String field) {
         return !(Pattern.matches("[-]?[0-9]+[\\.]?[0-9]*", field)) || "".equals(field);
@@ -20,10 +20,10 @@ public class FieldValidator {
     }
 
     /**
-     * Validates an integer field. 
-     * 
+     * Validates an integer field.
+     *
      * @param field
-     * @return 
+     * @return
      */
     public boolean integerValidator(String field) {
         return !(Pattern.matches("[-]?[0-9]+", field)) || "".equals(field);

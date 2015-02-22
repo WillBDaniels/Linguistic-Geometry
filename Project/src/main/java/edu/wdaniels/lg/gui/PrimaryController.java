@@ -1,7 +1,7 @@
 package edu.wdaniels.lg.gui;
 
-import edu.wdaniels.lg.proj1.FieldValidator;
-import edu.wdaniels.lg.proj1.Main;
+import edu.wdaniels.lg.FieldValidator;
+import edu.wdaniels.lg.Main;
 import edu.wdaniels.lg.abg.DistanceFinder;
 import edu.wdaniels.lg.abg.Obstacle;
 import edu.wdaniels.lg.abg.Piece;

@@ -1,4 +1,4 @@
-package edu.wdaniels.lg.proj1;
+package edu.wdaniels.lg;
 
 import edu.wdaniels.lg.logging.Log4jLogger;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package edu.wdaniels.lg.gui;
 
-import edu.wdaniels.lg.proj1.Main;
+import edu.wdaniels.lg.Main;
 import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,6 +17,7 @@ public class PopErrorWindow {
     private static String customError = "";
     private static String customBottomError = "";
     private final Popup pop;
+
     /**
      * This is the default public constructor for PopErrorWindow.
      */
@@ -35,7 +36,7 @@ public class PopErrorWindow {
 
         Parent root3 = FXMLLoader.load(getClass().getResource("../fxml/ErrorPopInvalidEntry.fxml"));
         root3.getStylesheets().add(getClass().getResource("../css/Primary.css").toExternalForm());
-        
+
         pop.setAutoHide(true);
         pop.setAutoFix(true);
         pop.setHideOnEscape(true);
@@ -70,7 +71,7 @@ public class PopErrorWindow {
     public static void setCustomErrorMessage(String newError, String bottomError) {
         customError = newError;
         customBottomError = bottomError;
-        
+
     }
 
     /**
@@ -79,11 +80,11 @@ public class PopErrorWindow {
      * that.
      *
      * @return The current custom error message being stored in our static
- variable customError.
+     * variable customError.
      */
     public static String getCustomErrorMessage() {
         return customError;
-        
+
     }
 
     /**
@@ -92,7 +93,7 @@ public class PopErrorWindow {
      * that.
      *
      * @return The current custom error message being stored in our static
- variable customError.
+     * variable customError.
      */
     public static String getCustomBottomErrorMessage() {
         return customBottomError;
@@ -175,8 +176,8 @@ public class PopErrorWindow {
         pop.show(stage);
 
     }
-    
-    public Popup get_popup(){
+
+    public Popup get_popup() {
         return pop;
     }
 }
