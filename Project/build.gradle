@@ -43,6 +43,7 @@ javafx {
     width = 800
     height = 600
     embedJNLP = false
+    jvmArgs = ['-Xmx1024m']
     icons {
         shortcut = ['icons/programLogo16.png', 'icons/programLogo32.png', 'icons/programLogo128.png']
     }

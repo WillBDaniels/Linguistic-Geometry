@@ -73,7 +73,6 @@ public class ControlledGrammarFunctions {
             Piece targetLocation, int l, int l0, int i) {
         int[][][] st1, st2, sum;
         sum = sum(originalLocation, targetLocation, l0);
-        printSummedMap(sum);
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
         int length = st2.length;
@@ -100,6 +99,7 @@ public class ControlledGrammarFunctions {
         markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
 
         return choiceTriple;
+
     }
 
     public int[][][] sum(Piece start, Piece target, int length) {
@@ -108,10 +108,6 @@ public class ControlledGrammarFunctions {
 
         int[][][] startRp = start.getReachabilityThreeDMap();
         int[][][] targetRp = target.getReachabilityThreeDMap();
-//        System.out.println("starting map: ");
-//        printSummedMap(startRp);
-//        System.out.println("Target map: ");
-//        printSummedMap(targetRp);
         int[][][] summedMap = new int[startRp.length][startRp.length][startRp.length];
         for (int x = 0; x < startRp.length; x++) {
             for (int y = 0; y < startRp[x].length; y++) {
@@ -124,8 +120,6 @@ public class ControlledGrammarFunctions {
                 }
             }
         }
-        //System.out.println("Summed map: ");
-        //printSummedMap(summedMap);
         return summedMap;
     }
 

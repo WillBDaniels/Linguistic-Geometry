@@ -34,8 +34,8 @@ public class PopErrorWindow {
      */
     public void PopErrorWindowShower(double x, double y) throws IOException {
 
-        Parent root3 = FXMLLoader.load(getClass().getResource("../fxml/ErrorPopInvalidEntry.fxml"));
-        root3.getStylesheets().add(getClass().getResource("../css/Primary.css").toExternalForm());
+        Parent root3 = FXMLLoader.load(getClass().getResource("fxml/ErrorPopInvalidEntry.fxml"));
+        root3.getStylesheets().add(getClass().getResource("css/Primary.css").toExternalForm());
 
         pop.setAutoHide(true);
         pop.setAutoFix(true);
@@ -137,8 +137,8 @@ public class PopErrorWindow {
      * fxml.
      */
     public void PopErrorWindowShower(double x, double y, Stage stage) throws IOException {
-        Parent root3 = FXMLLoader.load(getClass().getResource("../fxml/ErrorPopInvalidEntry.fxml"));
-        root3.getStylesheets().add(getClass().getResource("../css/Primary.css").toExternalForm());
+        Parent root3 = FXMLLoader.load(getClass().getResource("fxml/ErrorPopInvalidEntry.fxml"));
+        root3.getStylesheets().add(getClass().getResource("css/Primary.css").toExternalForm());
 
         pop.setAutoHide(true);
         pop.setAutoFix(true);

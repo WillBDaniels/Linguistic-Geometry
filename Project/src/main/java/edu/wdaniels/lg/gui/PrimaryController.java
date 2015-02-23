@@ -96,10 +96,13 @@ public class PrimaryController {
         trajectoryList.clear();
 
         int size = getBoardSize();
-//        if (is2D & obstacleList.isEmpty() && size == 8) {
-//            size = 15;
-//        }
-
+        if (is2D & obstacleList.isEmpty() && size == 8) {
+            ta_error_pane.setText("I'm sorry, there is a known bug with this combination of parameters, "
+                    + "please change the board size, switch to 3D, or add an obstacle. Thank you.");
+            return;
+        }
+        ta_error_pane.setText("Warning, this operation can take quite some time depending on the board size and speed of the computer running it. "
+                + "A new window will open, and the spinner will disappear when it finishes. 3D times will take approximately 5 times as long in the worst case. ");
         Thread t = new Thread(() -> {
             Platform.runLater(() -> {
                 btn_traj_display.setDisable(true);
@@ -132,7 +135,7 @@ public class PrimaryController {
                         }
                         displayTraj2D = new Stage(StageStyle.DECORATED);
                         Parent root;
-                        root = FXMLLoader.load(getClass().getResource("../fxml/DisplayTraj2D.fxml"));
+                        root = FXMLLoader.load(getClass().getResource("fxml/DisplayTraj2D.fxml"));
                         Scene scene = new Scene(root);
 
                         displayTraj2D.setScene(scene);
@@ -153,7 +156,7 @@ public class PrimaryController {
                         }
                         displayTraj3D = new Stage(StageStyle.DECORATED);
                         Parent root;
-                        root = FXMLLoader.load(getClass().getResource("../fxml/Display3DTraj.fxml"));
+                        root = FXMLLoader.load(getClass().getResource("fxml/Display3DTraj.fxml"));
                         Scene scene = new Scene(root);
 
                         displayTraj3D.setScene(scene);
@@ -304,7 +307,7 @@ public class PrimaryController {
         }
         addObstacleStage = new Stage(StageStyle.DECORATED);
         Parent root;
-        root = FXMLLoader.load(getClass().getResource("../fxml/AddNewObstacle.fxml"));
+        root = FXMLLoader.load(getClass().getResource("fxml/AddNewObstacle.fxml"));
         Scene scene = new Scene(root);
 
         addObstacleStage.setScene(scene);
@@ -322,7 +325,7 @@ public class PrimaryController {
         }
         addPieceStage = new Stage(StageStyle.DECORATED);
         Parent root;
-        root = FXMLLoader.load(getClass().getResource("../fxml/AddNewPiece.fxml"));
+        root = FXMLLoader.load(getClass().getResource("fxml/AddNewPiece.fxml"));
         Scene scene = new Scene(root);
 
         addPieceStage.setScene(scene);
@@ -570,7 +573,7 @@ public class PrimaryController {
                 }
                 display2DStage = new Stage(StageStyle.DECORATED);
                 Parent root;
-                root = FXMLLoader.load(getClass().getResource("../fxml/Display2D.fxml"));
+                root = FXMLLoader.load(getClass().getResource("fxml/Display2D.fxml"));
                 Scene scene = new Scene(root);
 
                 display2DStage.setScene(scene);
