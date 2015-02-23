@@ -131,7 +131,13 @@ public class GrammarGt1 {
         int x = targetPiece.getLocation().getSecond();
         int y = targetPiece.getLocation().getFirst();
         int z = targetPiece.getLocation().getThird();
+//        if (PrimaryController.getController().is2D && PrimaryController.getController().obstacleList.isEmpty()
+//                && ((Integer.valueOf(PrimaryController.getController().tf_board_size.getText()) == 8))) {
+//            DistanceFinder df = new DistanceFinder();
+//            return df.find2DChessDistance(startPiece, targetPiece);
+//        }
         System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
+        startPiece.print3DBoard();
         if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
             return startPiece.getReachabilityThreeDMap()[x][y][z];
         } else {

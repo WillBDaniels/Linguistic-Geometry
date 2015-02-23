@@ -1,6 +1,7 @@
 package edu.wdaniels.lg.abg;
 
 import edu.wdaniels.lg.gui.BoardGenerator;
+import edu.wdaniels.lg.gui.PrimaryController;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,24 +54,18 @@ public class ControlledGrammarFunctions {
             int l, int l0, Piece originalLocation, Piece initialPiece, Piece targetPiece,
             ArrayList<Obstacle> obsList) {
         markerMap[originalLocation.getLocation().getSecond()][originalLocation.getLocation().getFirst()][originalLocation.getLocation().getThird()] = true;
-//        System.out.println("originalLocation map: ");
-//        originalLocation.print3DBoard();
-//        System.out.println("initialPiece map: ");
-//        initialPiece.getReachabilityThreeDMap();
-//        initialPiece.print3DBoard();
-//        System.out.println("targetPiece map: ");
-//        targetPiece.getReachabilityThreeDMap();
-//        targetPiece.print3DBoard();
         Triple pieceLocation = move(originalLocation, initialPiece, targetPiece, l, l0, i);
         Piece nextPiece = new Piece(pieceLocation, originalLocation.getReachablityEquation(), originalLocation.getPieceName());
         BoardGenerator bg = new BoardGenerator();
         if (pieceLocation == null) {
             return null;
         }
-        nextPiece.setReachabilityTwoDMap(bg.generate2DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length, false));
-//        System.out.println("next pieces board: ");
-//        nextPiece.getReachabilityThreeDMap();
-//        nextPiece.print3DBoard();
+
+        if (PrimaryController.getController().is2D) {
+            nextPiece.setReachabilityTwoDMap(bg.generate2DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length, false));
+        } else {
+            nextPiece.setReachabilityThreeDMap(bg.generate3DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length));
+        }
         return nextPiece;
     }
 
@@ -78,6 +73,7 @@ public class ControlledGrammarFunctions {
             Piece targetLocation, int l, int l0, int i) {
         int[][][] st1, st2, sum;
         sum = sum(originalLocation, targetLocation, l0);
+        printSummedMap(sum);
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
         int length = st2.length;

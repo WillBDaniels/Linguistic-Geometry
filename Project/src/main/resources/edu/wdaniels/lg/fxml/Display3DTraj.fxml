@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="806.0" prefWidth="1087.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wdaniels.lg.gui.Display3DTrajController">
+    <children>
+        <StackPane fx:id="pane_main_grid" layoutY="6.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="806.0" prefWidth="1087.0">
+         <children>
+            <Label fx:id="lbl_3dTraj_main" prefHeight="776.0" prefWidth="1198.0" text="Algebraic representation: " wrapText="true" />
+         </children></StackPane>
+    </children>
+</AnchorPane>

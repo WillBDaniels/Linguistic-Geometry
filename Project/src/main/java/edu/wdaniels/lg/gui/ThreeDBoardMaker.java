@@ -38,30 +38,31 @@ public class ThreeDBoardMaker {
     private final ArrayList<Double> dataY;
     private final ArrayList<Double> dataZ;
     private int[][][] map;
-    
-    public ThreeDBoardMaker(int cubeSize){
+
+    public ThreeDBoardMaker(int cubeSize) {
         this.cubeSize = cubeSize;
         dataX = new ArrayList<>();
         dataY = new ArrayList<>();
         dataZ = new ArrayList<>();
     }
-    public ThreeDBoardMaker(int cubeSize, ArrayList<Double> dataX, ArrayList<Double> dataY, ArrayList<Double> dataZ){
+
+    public ThreeDBoardMaker(int cubeSize, ArrayList<Double> dataX, ArrayList<Double> dataY, ArrayList<Double> dataZ) {
         this.dataX = dataX;
         this.dataY = dataY;
         this.dataZ = dataZ;
         this.cubeSize = cubeSize;
     }
-    
-    public void setMap(int[][][] map){
+
+    public void setMap(int[][][] map) {
         this.map = map;
     }
-    
-    public void start() throws Exception {
+
+    public void start(boolean forTrajectory) throws Exception {
         Stage primaryStage = new Stage();
         Group sceneRoot = new Group();
         Scene scene = new Scene(sceneRoot, sceneWidth, sceneHeight, true, SceneAntialiasing.BALANCED);
         scene.setFill(Color.BLACK);
-        
+
         //Setup camera and scatterplot cubeviewer
         camera = new PerspectiveCamera(true);
         cubeViewer = new GridBuilder(cubeSize * 100, 100, true, 5, 1, 1);
@@ -98,7 +99,7 @@ public class ThreeDBoardMaker {
         cubeViewer.setxAxisData(dataX);
         cubeViewer.setyAxisData(dataY);
         cubeViewer.setzAxisData(dataZ);
-        //First person shooter keyboard movement 
+        //First person shooter keyboard movement
         scene.setOnKeyPressed(event -> {
             double change = 10.0;
             //Add shift modifier to simulate "Running Speed"

@@ -1,8 +1,11 @@
 package edu.wdaniels.lg.gui;
 
+import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import org.fxyz.tools.CubeViewer;
 
@@ -20,6 +23,15 @@ public class GridBuilder extends CubeViewer {
 
     public void setMap(int[][][] map) {
         this.map = map;
+    }
+
+    private void buildTrajectory() {
+        for (List<Triple<Integer, Integer, Integer>> list : PrimaryController.getController().trajectoryList) {
+            for (Triple<Integer, Integer, Integer> item : list) {
+                final Cylinder newCyl = new Cylinder();
+                newCyl.setRadius(5);
+            }
+        }
     }
 
     @Override

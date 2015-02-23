@@ -66,7 +66,7 @@ public class PrimaryController {
     @FXML
     private TextArea ta_error_pane;
     @FXML
-    private TextField tf_board_size, tf_traj_length;
+    public TextField tf_board_size, tf_traj_length;
     @FXML
     private ProgressIndicator pi_indicator;
 
@@ -92,42 +92,86 @@ public class PrimaryController {
     }
 
     @FXML
-    private void displayTrajectories() throws IOException {
-        Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
-        Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
+    private void displayTrajectories() {
+        trajectoryList.clear();
 
-        int count = 0;
-        while (trajectoryList.size() < getBoardSize() * 2 && count < getBoardSize() * 2) {
-            GrammarGt1 gt1 = new GrammarGt1(getBoardSize(), Integer.valueOf(tf_traj_length.getText()), start, target);
-            trajectoryList.add(gt1.produceTrajectory());
-            count++;
-        }
+        int size = getBoardSize();
+//        if (is2D & obstacleList.isEmpty() && size == 8) {
+//            size = 15;
+//        }
 
-        if (is2D) {
-            if (displayTraj2D != null && displayTraj2D.isShowing()) {
-                displayTraj2D.requestFocus();
+        Thread t = new Thread(() -> {
+            Platform.runLater(() -> {
+                btn_traj_display.setDisable(true);
+                pi_indicator.setVisible(true);
+
+            });
+            int count = 0;
+            Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
+            Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
+            while (trajectoryList.size() < size * 5 && count < size * size) {
+                GrammarGt1 gt1 = new GrammarGt1(size, Integer.valueOf(tf_traj_length.getText()), start, target);
+                List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
+
+                if (!traj.isEmpty()) {
+                    System.out.println("adding trajectory..");
+                    trajectoryList.add(traj);
+                }
+                count++;
+            }
+            if (trajectoryList.isEmpty()) {
+                ta_error_pane.setText("I'm sorry, no trajectories of that length found, please check the distance pane and try again.");
                 return;
             }
-            displayTraj2D = new Stage(StageStyle.DECORATED);
-            Parent root;
-            root = FXMLLoader.load(getClass().getResource("../fxml/DisplayTraj2D.fxml"));
-            Scene scene = new Scene(root);
+            Platform.runLater(() -> {
+                if (is2D) {
+                    try {
+                        if (displayTraj2D != null && displayTraj2D.isShowing()) {
+                            displayTraj2D.requestFocus();
+                            return;
+                        }
+                        displayTraj2D = new Stage(StageStyle.DECORATED);
+                        Parent root;
+                        root = FXMLLoader.load(getClass().getResource("../fxml/DisplayTraj2D.fxml"));
+                        Scene scene = new Scene(root);
 
-            displayTraj2D.setScene(scene);
-            //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
-            displayTraj2D.setTitle("Display 2D Trajectory Table");
-            //mainStage.setResizable(true);
-            displayTraj2D.show();
+                        displayTraj2D.setScene(scene);
+                        //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+                        displayTraj2D.setTitle("Display 2D Trajectory Table");
+                        //mainStage.setResizable(true);
+                        displayTraj2D.show();
+                    } catch (IOException ex) {
+                        Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
-        } else {
-//                ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
-//                coolBoard.setMap(piece.getReachabilityThreeDMap());
-//                try {
-//                    coolBoard.start();
-//                } catch (Exception ex) {
-//                    Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-        }
+                } else {
+                    try {
+                        Stage displayTraj3D = new Stage();
+                        if (displayTraj3D.isShowing()) {
+                            displayTraj3D.requestFocus();
+                            return;
+                        }
+                        displayTraj3D = new Stage(StageStyle.DECORATED);
+                        Parent root;
+                        root = FXMLLoader.load(getClass().getResource("../fxml/Display3DTraj.fxml"));
+                        Scene scene = new Scene(root);
+
+                        displayTraj3D.setScene(scene);
+                        //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+                        displayTraj3D.setTitle("Display 3D Trajectories");
+                        //mainStage.setResizable(true);
+                        displayTraj3D.show();
+                    } catch (IOException ex) {
+                        Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+                pi_indicator.setVisible(false);
+                btn_traj_display.setDisable(false);
+            });
+
+        });
+        t.start();
 
     }
 
@@ -539,7 +583,7 @@ public class PrimaryController {
                 ThreeDBoardMaker coolBoard = new ThreeDBoardMaker(Integer.valueOf(tf_board_size.getText()));
                 coolBoard.setMap(piece.getReachabilityThreeDMap());
                 try {
-                    coolBoard.start();
+                    coolBoard.start(false);
                 } catch (Exception ex) {
                     Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -591,6 +635,7 @@ public class PrimaryController {
             }
         });
         tf_traj_length.textProperty().addListener((ChangeListener) -> {
+            ta_error_pane.setText("");
             if (fv.integerValidator(tf_traj_length.getText())) {
                 displayErrorAndStyle(tf_traj_length, "Invalid Trajectory Length", tf_traj_length.textProperty());
             } else {
@@ -607,6 +652,7 @@ public class PrimaryController {
         lv_traj_starting.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object t, Object t1) {
+                ta_error_pane.setText("");
                 allTrajectoryItemsSelected();
             }
 
@@ -614,6 +660,7 @@ public class PrimaryController {
         lv_traj_target.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object t, Object t1) {
+                ta_error_pane.setText("");
                 allTrajectoryItemsSelected();
             }
 

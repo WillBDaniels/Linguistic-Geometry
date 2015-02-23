@@ -36,28 +36,39 @@ public class DisplayTrajBoard {
             size = 15;
             cb2 = new ChessBoard(8);
         }
-        List<Circle> circleList = new ArrayList<>();
+        List<List<Circle>> circleList = new ArrayList<>();
         Circle temp;
+        int factor = 0;
         for (int j = 0; j < PrimaryController.getController().trajectoryList.size(); j++) {
+            List<Circle> tempList = new ArrayList<>();
             for (Triple location : PrimaryController.getController().trajectoryList.get(j)) {
                 temp = new Circle(3);
+//                if (cb2 != null) {
+//                    temp.setLayoutX(((7 - (Integer) location.getThird()) * 40) + 20);
+//                    temp.setLayoutY(((7 - (Integer) location.getSecond()) * 40) + 20);
+//                } else {
                 temp.setLayoutX(((Integer) location.getThird() * 40) + 20);
                 temp.setLayoutY(((Integer) location.getSecond() * 40) + 20);
+
                 temp.setFill(Color.RED);
-                circleList.add(temp);
+                tempList.add(temp);
             }
+            circleList.add(tempList);
         }
+
         circleList.remove(circleList.size() - 1);
         List<Line> lineList = new ArrayList<>();
         for (int i = 0; i < circleList.size() - 1; i++) {
-            Line tempLine = new Line();
-            tempLine.setStrokeWidth(2);
-            tempLine.setStroke(Color.GREEN);
-            tempLine.setStartX(circleList.get(i).getLayoutX());
-            tempLine.setStartY(circleList.get(i).getLayoutY());
-            tempLine.setEndX(circleList.get(i + 1).getLayoutX());
-            tempLine.setEndY(circleList.get(i + 1).getLayoutY());
-            lineList.add(tempLine);
+            for (int y = 0; y < circleList.get(i).size() - 1; y++) {
+                Line tempLine = new Line();
+                tempLine.setStrokeWidth(2);
+                tempLine.setStroke(Color.GREEN);
+                tempLine.setStartX(circleList.get(i).get(y).getLayoutX());
+                tempLine.setStartY(circleList.get(i).get(y).getLayoutY());
+                tempLine.setEndX(circleList.get(i).get(y + 1).getLayoutX());
+                tempLine.setEndY(circleList.get(i).get(y + 1).getLayoutY());
+                lineList.add(tempLine);
+            }
         }
         ChessBoard cb = new ChessBoard(size);
         GridPane gp = cb.getChessBoard(piece.getReachabilityTwoDMap(), 1);
@@ -76,14 +87,17 @@ public class DisplayTrajBoard {
             pane_main_grid.getChildren().add(pane1);
         }
         AnchorPane ap = new AnchorPane();
-        for (Circle circle : circleList) {
-            ap.getChildren().add(circle);
+        for (List<Circle> list : circleList) {
+            for (Circle circle : list) {
+                ap.getChildren().add(circle);
+            }
         }
         for (Line line : lineList) {
-            System.out.println("Adding a line...");
             ap.getChildren().add(line);
         }
-        pane_main_grid.getChildren().add(ap);
+
+        pane_main_grid.getChildren()
+                .add(ap);
 
     }
 
