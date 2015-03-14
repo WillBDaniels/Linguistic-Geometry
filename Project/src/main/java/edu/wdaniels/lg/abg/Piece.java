@@ -15,6 +15,7 @@ public class Piece {
     private String pieceName = "";
     private int[][][] reachabilityThreeDMap;
     private int[][] reachabilityTwoDMap;
+    private String pieceType = "";
 
     public int[][][] getReachabilityThreeDMap() {
         if (reachabilityThreeDMap == null && reachabilityTwoDMap != null) {
@@ -137,6 +138,13 @@ public class Piece {
         }
         System.out.println("board: \n" + outputBoard);
         return outputBoard;
+    }
 
+    public void setPieceType(String type) {
+        pieceType = type;
+    }
+
+    public String getPieceType() {
+        return pieceType;
     }
 }

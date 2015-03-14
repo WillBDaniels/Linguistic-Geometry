@@ -53,7 +53,7 @@ public class PrimaryController {
     private TableColumn tc_distance_column, tc_piece_column;
 
     @FXML
-    private Button btn_display_table, btn_generate, btn_generate_test_board, btn_traj_display;
+    private Button btn_display_table, btn_generate, btn_generate_test_board, btn_traj_display, btn_generate_zone;
 
     @FXML
     private TabPane tp_main_display;
@@ -349,6 +349,11 @@ public class PrimaryController {
             removeExistingObstacle((Obstacle) lv_obstacles.getSelectionModel().getSelectedItem());
             refreshObstacleList();
         }
+    }
+
+    @FXML
+    private void generateZones() {
+        System.out.println("Generating zones...");
     }
 
     /**

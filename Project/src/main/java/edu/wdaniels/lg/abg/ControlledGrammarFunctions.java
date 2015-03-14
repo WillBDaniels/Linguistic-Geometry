@@ -2,6 +2,7 @@ package edu.wdaniels.lg.abg;
 
 import edu.wdaniels.lg.gui.BoardGenerator;
 import edu.wdaniels.lg.gui.PrimaryController;
+import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class ControlledGrammarFunctions {
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
         int length = st2.length;
-        int choice = 0;
+        int choice;
         List<Triple<Integer, Integer, Integer>> availableOptions = new ArrayList<>();
 
         for (int x = 0; x < length; x++) {
@@ -124,9 +125,9 @@ public class ControlledGrammarFunctions {
     }
 
     private void printSummedMap(int[][][] inputMap) {
-        for (int x = 0; x < inputMap.length; x++) {
+        for (int[][] inputMap1 : inputMap) {
             for (int y = 0; y < inputMap.length; y++) {
-                System.out.print(inputMap[x][y][0] + " ");
+                System.out.print(inputMap1[y][0] + " ");
             }
             System.out.println("\n");
         }
@@ -156,9 +157,9 @@ public class ControlledGrammarFunctions {
     }
 
     private void printSummedMap(boolean[][][] inputMap) {
-        for (int x = 0; x < inputMap.length; x++) {
+        for (boolean[][] inputMap1 : inputMap) {
             for (int y = 0; y < inputMap.length; y++) {
-                System.out.print((inputMap[x][y][0] ? "T" : "F") + " ");
+                System.out.print((inputMap1[y][0] ? "T" : "F") + " ");
             }
             System.out.println("\n");
         }
@@ -187,4 +188,83 @@ public class ControlledGrammarFunctions {
         }
         return matrix;
     }
+
+    public int ALPHA(int[][] nexttime, Piece x, Piece p0, Piece t0, int k) {
+        return 0;
+    }
+
+    public int DIST(Piece x, Piece p0, int t0) {
+        return 0;
+    }
+
+    public int g(Piece p0, int t0, int[][] w) {
+        return 0;
+    }
+
+    public Piece f(Piece u, Piece v) {
+        return null;
+    }
+
+    /**
+     * This is the function that initializes the NEXTTIME map, but really it
+     * just returns 2n (n is the size of the board) unless you're on the piece,
+     * in which case it returns r.
+     *
+     * @param u The starting piece location
+     * @param r The value of 'nexttime' at r
+     * @param n the size of the board.
+     * @return 2n (n is the size of the board) unless you're on the piece, in
+     * which case it returns r.
+     */
+    public int init(Piece u, int r, int n) {
+        Triple<Integer, Integer, Integer> location = u.getLocation();
+        if ((location.getFirst() == 0) && (location.getSecond() == 0)
+                && (location.getThird() == 0)) {
+            return 2 * n;
+        } else {
+            return r;
+        }
+    }
+
+    /**
+     * This simply compares two pieces and makes sure they are opposing. Pretty
+     * basic.
+     *
+     * @param p1 the first piece
+     * @param p2 the second piece.
+     * @return true if they are opposing, false otherwise.
+     */
+    public boolean OPPOSE(Piece p1, Piece p2) {
+        return !p1.getPieceType().equalsIgnoreCase(p2.getPieceType());
+    }
+
+    /**
+     * This function computes MAP_xp (y) = l
+     *
+     * @param startPiece
+     * @param targetPiece
+     * @return
+     */
+    public int MAP(Piece startPiece, Piece targetPiece) {
+        int x = targetPiece.getLocation().getSecond();
+        int y = targetPiece.getLocation().getFirst();
+        int z = targetPiece.getLocation().getThird();
+//        if (PrimaryController.getController().is2D && PrimaryController.getController().obstacleList.isEmpty()
+//                && ((Integer.valueOf(PrimaryController.getController().tf_board_size.getText()) == 8))) {
+//            DistanceFinder df = new DistanceFinder();
+//            return df.find2DChessDistance(startPiece, targetPiece);
+//        }
+        System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
+        startPiece.print3DBoard();
+        if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
+            return startPiece.getReachabilityThreeDMap()[x][y][z];
+        } else {
+            return -1;
+        }
+    }
+
+    public Pair<Piece, Piece> h(int index, Piece u) {
+        return null;
+    }
+
 }

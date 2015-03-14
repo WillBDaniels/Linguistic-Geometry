@@ -112,6 +112,7 @@
                                 <Label styleClass="basicLabel" text="Size of Board (Square or Cube only)" />
                                 <TextField fx:id="tf_board_size" promptText="Please enter a number" />
                                 <Button fx:id="btn_generate_test_board" mnemonicParsing="false" onAction="#generateTestBoard" text="Generate Test Board" />
+                        <Button fx:id="btn_generate_zone" mnemonicParsing="false" onAction="#generateZones" text="Generate Zone" />
                             </children>
                         </FlowPane>
                         <ProgressIndicator fx:id="pi_indicator" visible="false" />
