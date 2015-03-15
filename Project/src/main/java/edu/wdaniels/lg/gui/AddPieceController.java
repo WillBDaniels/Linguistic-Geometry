@@ -30,7 +30,7 @@ public class AddPieceController {
         if (!showInvalidFields()){
             return;
         }
-        Piece newPiece = new Piece(new Triple(Integer.valueOf(tf_piece_x_location.getText()),
+        Piece newPiece = new Piece("", new Triple(Integer.valueOf(tf_piece_x_location.getText()),
                 Integer.valueOf(tf_piece_y_location.getText()), Integer.valueOf(tf_piece_z_location.getText())),
                 ta_reachability_equation.getText(), tf_piece_name.getText());
         PrimaryController.getController().addNewPiece(newPiece);

@@ -105,10 +105,11 @@ public class GrammarGt1 {
                 break;
             }
             switch (currentStep) {
-                case Q1:
+                case Q1:{
                     temp = new A(start.x, start.y, start.l);
                     break;
-                case Q2:
+                }
+                case Q2:{
                     tempLoc = temp.x.getLocation();
                     outputTrajectory.add(new Triple(tempLoc.getThird(), tempLoc.getSecond(),
                             tempLoc.getFirst()));
@@ -116,10 +117,13 @@ public class GrammarGt1 {
                             PrimaryController.getController().obstacleList), targetPiece, cgf.f(l));
                     l = temp.l;
                     break;
-                case Q3:
+                }
+                case Q3:{
                     tempLoc = temp.y.getLocation();
                     outputTrajectory.add(new Triple(tempLoc.getThird(), tempLoc.getSecond(),
                             tempLoc.getFirst()));
+                    break;
+                }
             }
         }
         return outputTrajectory;
@@ -141,8 +145,8 @@ public class GrammarGt1 {
 //            DistanceFinder df = new DistanceFinder();
 //            return df.find2DChessDistance(startPiece, targetPiece);
 //        }
-        System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
-        startPiece.print3DBoard();
+        //System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
+        //startPiece.print3DBoard();
         if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
             return startPiece.getReachabilityThreeDMap()[x][y][z];
         } else {

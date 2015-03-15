@@ -3,6 +3,7 @@ package edu.wdaniels.lg.gui;
 import edu.wdaniels.lg.abg.Piece;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
@@ -56,17 +57,21 @@ public class DisplayTrajBoard {
             circleList.add(tempList);
         }
 
-        circleList.remove(circleList.size() - 1);
+        
+        //circleList.remove(circleList.size() - 1);
         List<Line> lineList = new ArrayList<>();
-        for (int i = 0; i < circleList.size() - 1; i++) {
-            for (int y = 0; y < circleList.get(i).size() - 1; y++) {
+        for (List<Circle> circleList1 : circleList) {
+            for (int y = 0; y < circleList1.size(); y++) {
                 Line tempLine = new Line();
                 tempLine.setStrokeWidth(2);
                 tempLine.setStroke(Color.GREEN);
-                tempLine.setStartX(circleList.get(i).get(y).getLayoutX());
-                tempLine.setStartY(circleList.get(i).get(y).getLayoutY());
-                tempLine.setEndX(circleList.get(i).get(y + 1).getLayoutX());
-                tempLine.setEndY(circleList.get(i).get(y + 1).getLayoutY());
+                tempLine.setStartX(circleList1.get(y).getLayoutX());
+                tempLine.setStartY(circleList1.get(y).getLayoutY());
+                if (y+1 == circleList1.size()){
+                    continue;
+                }
+                tempLine.setEndX(circleList1.get(y + 1).getLayoutX());
+                tempLine.setEndY(circleList1.get(y + 1).getLayoutY());
                 lineList.add(tempLine);
             }
         }

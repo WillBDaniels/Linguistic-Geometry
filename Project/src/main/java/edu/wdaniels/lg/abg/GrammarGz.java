@@ -1,5 +1,6 @@
 package edu.wdaniels.lg.abg;
 
+import edu.wdaniels.lg.gui.PrimaryController;
 import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
@@ -51,15 +52,15 @@ public class GrammarGz {
         this.currentTargetPiece = targetPiece;
         this.primaryTraj = primaryTraj;
         n = boardSize;
-        w = new int[boardSize * boardSize];
-        v = new int[boardSize * boardSize];
-        time = new int[boardSize * boardSize];
-        nexttime = new int[boardSize * boardSize];
-        markerMap = new boolean[boardSize][boardSize][boardSize];
+        w = new int[n * n];
+        v = new int[n * n];
+        time = new int[n * n];
+        nexttime = new int[n * n];
+        markerMap = new boolean[n][n][n];
         cgf = new ControlledGrammarFunctions(markerMap);
         x0 = calculateLinearLocation(startingPiece);
         y0 = calculateLinearLocation(targetPiece);
-        l0 = primaryTraj.size();
+        l0 = primaryTraj.size()-1;
         l = l0;
     }
 
@@ -71,6 +72,7 @@ public class GrammarGz {
 
     public List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> produceZone() {
         while (currentStep != null){
+            System.out.println("Doing step: " + currentStep + " will it execute? : " + stepCheckPassed );
             previousStep = currentStep;
             currentStep = checkFailParameter(currentStep);
             if (currentStep == null){
@@ -94,7 +96,7 @@ public class GrammarGz {
                         handleQ4();
                         break;
                     case Q5:
-                        currentA = new A(new Triple<>(0, 0, 0), w, new int[n]);
+                        currentA = new A(new Triple<>(0, 0, 0), w, new int[n*n]);
                         System.arraycopy(nexttime, 0, time, 0, nexttime.length);
                         break;
                     case Q6:
@@ -109,36 +111,39 @@ public class GrammarGz {
     
     private void handleQ2(){
         Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
-        traj = new Pair<>(cgf.h(0,currentPiece, targetPiece, l), l0+1);
+        traj = new Pair<>(cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), l0+1);
         trajectoryList.add(traj);
         for (int i = 0; i < v.length; i++){
-            v[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, targetPiece, l), w, i);
+            v[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), w, i);
         }
-        w = new int[n];
-        currentA = new A((new Triple<>(0, 0, 0)),v , w);
+        w = new int[n*n];
         for (int i = 0; i < time.length; i++){
-            time[i] = (cgf.DIST(i, currentPiece, cgf.h(0,currentPiece, targetPiece, l)));
+            time[i] = (cgf.DIST(i, currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird())));
         }
+        currentA = new A((new Triple<>(0, 0, 0)),v , w);
     }
     
-    private void handleQ3(){
-        currentA = new A(cgf.f(currentA.u, time, v, l), v, w);
+    private void handleQ3(){  
         for (int i = 0; i < nexttime.length; i++){
             nexttime[i] = cgf.init(currentA.u, nexttime[i], n);
         }
+        currentA = new A(cgf.f(currentA.u, time, v), v, w);
     }
     
     private void handleQ4(){
         Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
-        traj = new Pair<>(cgf.h(0,currentPiece, new Piece(linearToTriple(currentA.getU().getSecond()), "", ""), l), time[currentA.getU().getSecond()]);
+        Triple<Integer, Integer, Integer> yPiece = linearToTriple(currentA.getU().getSecond());
+        Piece newPiece = new Piece(targetPiece.getPieceType(),yPiece, "", "");
+        List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0,currentPiece,newPiece, currentA.getU().getThird());
+        traj = new Pair<>(trajectoryNew , time[currentA.getU().getSecond()]);
         trajectoryList.add(traj);
          for (int i = 0; i < w.length; i++){
-             w[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, new Piece(linearToTriple(currentA.getU().getSecond()), "", ""), l), w, i);
+             w[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, new Piece(targetPiece.getPieceType(), linearToTriple(currentA.getU().getSecond()), "", ""), l), w, i);
          }
-        currentA = new A(currentA.getU(), v, w);
         for (int i = 0; i < nexttime.length; i++){
-            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, cgf.h(0,currentPiece, new Piece(linearToTriple(currentA.getU().getSecond()), "", ""), l), time[currentA.getU().getSecond()] - l +1);
+            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, cgf.h(0,currentPiece, new Piece(targetPiece.getPieceType(),linearToTriple(currentA.getU().getSecond()), "", ""), l), time[currentA.getU().getSecond()] - l +1);
         }
+        currentA = new A(currentA.getU(), v, w);
     }
     
     private Triple<Integer, Integer, Integer> linearToTriple(int linear){
@@ -180,7 +185,7 @@ public class GrammarGz {
                 outputStep = Step.Q3;
                 break;
             case Q3:
-                if ((x != n) || (y != n)) {
+                if ((currentA.u.getFirst() != (n * n)) || (currentA.u.getSecond() != (n * n))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q4;
                 } else {
@@ -189,14 +194,26 @@ public class GrammarGz {
                 }
                 break;
             case Q4:
-                if ((l > 0) && (x != x0) && (y != y0)
+                boolean hasFoundPiece = false;
+                for (Piece piece: PrimaryController.getController().pieceList){
+                    if (piece.getLocation().compareTo(linearToTriple(currentA.u.getFirst())) == 0){
+                        currentPiece = piece;
+                        currentTargetPiece = new Piece(startingPiece.getPieceType(),linearToTriple(currentA.u.getSecond()), "", "");
+                        hasFoundPiece = true;
+                    }
+                }
+                if (!hasFoundPiece){
+                    outputStep = Step.Q3;
+                    break;
+                }
+                if ((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getSecond() != y0)
                         && (((!cgf.OPPOSE(currentPiece, currentTargetPiece)) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
-                        || ((cgf.OPPOSE(currentPiece, currentTargetPiece)) && (cgf.MAP(currentPiece, currentTargetPiece) <= l)))) {
+                        || ((cgf.OPPOSE(currentPiece, currentTargetPiece)) && (cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird())))) {
                     stepCheckPassed = true;
-                    outputStep = Step.Q4;
+                    outputStep = Step.Q3;
                 } else {
                     stepCheckPassed = false;
-                    outputStep = Step.Q4;
+                    outputStep = Step.Q3;
                 }
                 break;
             case Q5:
@@ -258,9 +275,7 @@ public class GrammarGz {
             return u;
         }
 
-        public void setU(Triple<Integer, Integer, Integer> u) {
-            l = u.getThird();
-            
+        public void setU(Triple<Integer, Integer, Integer> u) {            
             this.u = u;
         }
 

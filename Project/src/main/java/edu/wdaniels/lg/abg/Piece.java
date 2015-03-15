@@ -64,7 +64,7 @@ public class Piece {
 
     public int[][] getReachabilityTwoDMap() {
         if (reachabilityTwoDMap == null && reachabilityThreeDMap != null) {
-            System.out.println("Generating 2d from 3d");
+            //System.out.println("Generating 2d from 3d");
             reachabilityTwoDMap = getTwoDMapFromThreeD(reachabilityThreeDMap);
             printBoard();
         }
@@ -80,6 +80,7 @@ public class Piece {
      * 'piece' class doesn't do a whole lot, really. mostly just holds the state
      * of a few different values for us.
      *
+     * @param pieceType This is the actual type of the piece (aka: white piece, black piece)
      * @param location the location of the piece on a given board. The piece
      * doesn't check to see if the board it's being placed on actually has the
      * specified location, that's for the board to decide!
@@ -87,7 +88,8 @@ public class Piece {
      * equation. Should be defined like normal.
      * @param pieceName This is simply the name of the piece being defined.
      */
-    public Piece(Triple<Integer, Integer, Integer> location, String reachabilityEquation, String pieceName) {
+    public Piece(String pieceType, Triple<Integer, Integer, Integer> location, String reachabilityEquation, String pieceName) {
+        this.pieceType = pieceType;
         this.location = location;
         this.reachablityEquation = reachabilityEquation;
         this.pieceName = pieceName;

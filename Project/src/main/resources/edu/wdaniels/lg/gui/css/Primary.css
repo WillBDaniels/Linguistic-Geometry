@@ -31,6 +31,10 @@
     -fx-progress-color: darkblue;
 }
 
+.progress-indicator:indeterminate > .spinner {
+    -fx-background-color: transparent;
+}
+
 .tab-pane *.tab-header-background{
     -fx-background-color: #00000000;
 

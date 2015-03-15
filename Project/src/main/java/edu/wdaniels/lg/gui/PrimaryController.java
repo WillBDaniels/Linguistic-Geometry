@@ -4,8 +4,10 @@ import edu.wdaniels.lg.FieldValidator;
 import edu.wdaniels.lg.Main;
 import edu.wdaniels.lg.abg.DistanceFinder;
 import edu.wdaniels.lg.abg.GrammarGt1;
+import edu.wdaniels.lg.abg.GrammarGz;
 import edu.wdaniels.lg.abg.Obstacle;
 import edu.wdaniels.lg.abg.Piece;
+import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.TableData;
 import edu.wdaniels.lg.structures.Triple;
 import java.io.IOException;
@@ -76,7 +78,7 @@ public class PrimaryController {
     public boolean is2D = true;
     public List<List<Triple<Integer, Integer, Integer>>> trajectoryList = new ArrayList<>();
     public List<Triple<Integer, Integer, Integer>> trajectory;
-    private final ArrayList<Piece> pieceList = new ArrayList<>();
+    public final ArrayList<Piece> pieceList = new ArrayList<>();
     public final ArrayList<Obstacle> obstacleList = new ArrayList<>();
     private Stage addPieceStage, addObstacleStage, display2DStage, displayTraj2D;
 
@@ -353,7 +355,44 @@ public class PrimaryController {
 
     @FXML
     private void generateZones() {
-        System.out.println("Generating zones...");
+        Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
+        Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
+        pi_indicator.setVisible(true);
+        Thread t = new Thread(()->{
+             GrammarGz gz = new GrammarGz(start, target, trajectoryList.get(0), getBoardSize());
+            System.out.println("Generating zones...");
+            List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> zone;
+            zone = gz.produceZone();
+            zone.stream().forEach((pair) -> {
+                trajectoryList.clear();
+                trajectoryList.add(pair.getFirst()); 
+            });
+            Platform.runLater(() -> {
+            try {
+                displayTraj2D = new Stage(StageStyle.DECORATED);
+                Parent root;
+                root = FXMLLoader.load(getClass().getResource("fxml/DisplayTraj2D.fxml"));
+                Scene scene = new Scene(root);
+
+                displayTraj2D.setScene(scene);
+                //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+                displayTraj2D.setTitle("Display 2D Trajectory Table");
+                //mainStage.setResizable(true);
+                displayTraj2D.show();
+                pi_indicator.setVisible(false);
+            } catch (IOException ex) {
+                ex.printStackTrace(System.err);
+                Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+
+         });
+        });
+        t.start();
+       
+        
+        
+        System.out.println("Done...?");
     }
 
     /**
@@ -534,30 +573,30 @@ public class PrimaryController {
                 wKing, wBish0, wBish1, wRook0, wRook1, wKnight0, wKnight1, wQueen,
                 bKing, bBish0, bBish1, bRook0, bRook1, bKnight0, bKnight1, bQueen;
         //White Pawns
-        wPawn0 = new Piece(new Triple(0, 1, 0), whitePawnRelation, "White Pawn 0");
-        wPawn1 = new Piece(new Triple(1, 1, 0), whitePawnRelation, "White Pawn 1");
-        wPawn2 = new Piece(new Triple(2, 1, 0), whitePawnRelation, "White Pawn 2");
-        wPawn3 = new Piece(new Triple(3, 1, 0), whitePawnRelation, "White Pawn 3");
-        wPawn4 = new Piece(new Triple(4, 1, 0), whitePawnRelation, "White Pawn 4");
-        wPawn5 = new Piece(new Triple(5, 1, 0), whitePawnRelation, "White Pawn 5");
-        wPawn6 = new Piece(new Triple(6, 1, 0), whitePawnRelation, "White Pawn 6");
-        wPawn7 = new Piece(new Triple(7, 1, 0), whitePawnRelation, "White Pawn 7");
+        wPawn0 = new Piece("white", new Triple(0, 1, 0), whitePawnRelation, "White Pawn 0");
+        wPawn1 = new Piece("white", new Triple(1, 1, 0), whitePawnRelation, "White Pawn 1");
+        wPawn2 = new Piece("white", new Triple(2, 1, 0), whitePawnRelation, "White Pawn 2");
+        wPawn3 = new Piece("white", new Triple(3, 1, 0), whitePawnRelation, "White Pawn 3");
+        wPawn4 = new Piece("white", new Triple(4, 1, 0), whitePawnRelation, "White Pawn 4");
+        wPawn5 = new Piece("white", new Triple(5, 1, 0), whitePawnRelation, "White Pawn 5");
+        wPawn6 = new Piece("white", new Triple(6, 1, 0), whitePawnRelation, "White Pawn 6");
+        wPawn7 = new Piece("white", new Triple(7, 1, 0), whitePawnRelation, "White Pawn 7");
 
         //White Royalty
-        wKing = new Piece(new Triple(4, 0, 0), kingRelation, "White King");
+        wKing = new Piece("white", new Triple(4, 0, 0), kingRelation, "White King");
 
         //Black Pawns
-        bPawn0 = new Piece(new Triple(0, 6, 0), blackPawnRelation, "Black Pawn 0");
-        bPawn1 = new Piece(new Triple(1, 6, 0), blackPawnRelation, "Black Pawn 1");
-        bPawn2 = new Piece(new Triple(2, 6, 0), blackPawnRelation, "Black Pawn 2");
-        bPawn3 = new Piece(new Triple(3, 6, 0), blackPawnRelation, "Black Pawn 3");
-        bPawn4 = new Piece(new Triple(4, 6, 0), blackPawnRelation, "Black Pawn 4");
-        bPawn5 = new Piece(new Triple(5, 6, 0), blackPawnRelation, "Black Pawn 5");
-        bPawn6 = new Piece(new Triple(6, 6, 0), blackPawnRelation, "Black Pawn 6");
-        bPawn7 = new Piece(new Triple(7, 6, 0), blackPawnRelation, "Black Pawn 7");
+        bPawn0 = new Piece("black", new Triple(0, 6, 0), blackPawnRelation, "Black Pawn 0");
+        bPawn1 = new Piece("black", new Triple(1, 6, 0), blackPawnRelation, "Black Pawn 1");
+        bPawn2 = new Piece("black", new Triple(2, 6, 0), blackPawnRelation, "Black Pawn 2");
+        bPawn3 = new Piece("black", new Triple(3, 6, 0), blackPawnRelation, "Black Pawn 3");
+        bPawn4 = new Piece("black", new Triple(4, 6, 0), blackPawnRelation, "Black Pawn 4");
+        bPawn5 = new Piece("black", new Triple(5, 6, 0), blackPawnRelation, "Black Pawn 5");
+        bPawn6 = new Piece("black", new Triple(6, 6, 0), blackPawnRelation, "Black Pawn 6");
+        bPawn7 = new Piece("black", new Triple(7, 6, 0), blackPawnRelation, "Black Pawn 7");
 
         //Black Royalty
-        bKing = new Piece(new Triple(3, 7, 0), kingRelation, "Black King");
+        bKing = new Piece("black", new Triple(3, 7, 0), kingRelation, "Black King");
 
         tf_board_size.setText("8");
         pieceList.addAll(Arrays.asList(wKing, bKing, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7, bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7));

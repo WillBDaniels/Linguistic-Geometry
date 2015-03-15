@@ -2,7 +2,6 @@ package edu.wdaniels.lg.abg;
 
 import edu.wdaniels.lg.gui.BoardGenerator;
 import edu.wdaniels.lg.gui.PrimaryController;
-import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,7 @@ public class ControlledGrammarFunctions {
             ArrayList<Obstacle> obsList) {
         markerMap[originalLocation.getLocation().getSecond()][originalLocation.getLocation().getFirst()][originalLocation.getLocation().getThird()] = true;
         Triple pieceLocation = move(originalLocation, initialPiece, targetPiece, l, l0, i);
-        Piece nextPiece = new Piece(pieceLocation, originalLocation.getReachablityEquation(), originalLocation.getPieceName());
+        Piece nextPiece = new Piece(originalLocation.getPieceType(), pieceLocation, originalLocation.getReachablityEquation(), originalLocation.getPieceName());
         BoardGenerator bg = new BoardGenerator();
         if (pieceLocation == null) {
             return null;
@@ -270,6 +269,9 @@ public class ControlledGrammarFunctions {
     }
 
     /**
+     * This function (f) is the primary 'search' mechanism of the grammar of zones. 
+     * This goes through the table both first sear
+     * 
      * 
      * @param u
      * @param TIME
@@ -278,12 +280,16 @@ public class ControlledGrammarFunctions {
      * @return 
      */
     public Triple<Integer, Integer, Integer> f(Triple<Integer, Integer, Integer> u,
-            int[] TIME, int[] v, int l) {
+            int[] TIME, int[] v) {
         int n = PrimaryController.getController().getBoardSize();
-        if (((u.getFirst() != n) && (l > 0)) || ((u.getSecond() == n) && (l >=0))){
-            return new Triple(u.getFirst() + 1, u.getSecond(), l);
+        n = n*n;
+        if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <=0))){
+            System.out.println("Incrementing x, u is: " + u);
+            return new Triple(u.getFirst() + 1, u.getSecond(), u.getThird());
         }else{
-            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()+1] * v[u.getSecond()+1])));
+            System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
+            //due to the array indexing, normally, it's time(y+1), but that's 1-based, so mine is y+1 - 1 for each
+            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()] * v[u.getSecond()])));
         }
     }
 
@@ -346,18 +352,24 @@ public class ControlledGrammarFunctions {
     
     public List<Triple<Integer, Integer, Integer>> h(int choice, Piece startingLocation, Piece targetLocation, int l){
         List<List<Triple<Integer, Integer, Integer>>> outputTraj = new ArrayList<>();
-        GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
+        //System.out.println("This is my startingLocation: " + startingLocation.getLocation() + " and my target: " + targetLocation.getLocation());
+        
         int i = 0;
-        while (gt1.hasMoreTrajectories() && i < 10){
+        while (i < 2){
+            GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
-            if (traj.size() <= l){
+            if (traj.size() > 0 && traj.size()-1 <= l){
                 outputTraj.add(traj);
             }
             i++;
         }
         if (choice < outputTraj.size()){
+            //outputTraj.get(choice).remove(0);
             return outputTraj.get(choice);
         }else{
+            if (outputTraj.isEmpty()){
+                return null;
+            }
             return outputTraj.get(outputTraj.size() -1);
         }
     }
@@ -391,7 +403,10 @@ public class ControlledGrammarFunctions {
             this.l = l;
         }
         
-        
+        @Override
+        public String toString(){
+            return "( " + x + " ," + y + " ," + l + " )";
+        }
     }
 
 }
