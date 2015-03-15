@@ -201,13 +201,13 @@ public class ControlledGrammarFunctions {
     // to make this work out correctly.
     private int calculateLinearLocation(Piece piece) {
         int n = PrimaryController.getController().getBoardSize();
-        return ((piece.getLocation().getFirst() * n) + piece.getLocation().getSecond());
+        return ((piece.getLocation().getFirst()) + piece.getLocation().getSecond() * n);
     }
          //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
     // to make this work out correctly.
     private int calculateLinearLocation(Triple<Integer, Integer, Integer> location) {
         int n = PrimaryController.getController().getBoardSize();
-        return ((location.getFirst() * n) + location.getSecond());
+        return ((location.getFirst()) + location.getSecond() * n);
     }
     
     public int ALPHA(int[] nexttime, int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0, int k) {
@@ -248,7 +248,7 @@ public class ControlledGrammarFunctions {
             }
             i++;
         }
-        return PrimaryController.getController().getBoardSize() * 2;
+        return (PrimaryController.getController().getBoardSize() * PrimaryController.getController().getBoardSize()) * 2;
     }
 
     /**
@@ -261,7 +261,7 @@ public class ControlledGrammarFunctions {
      */
     public int g(Piece p0, List<Triple<Integer, Integer, Integer>> t0, int[] w, int r) {
         int n = PrimaryController.getController().getBoardSize();
-        if (DIST(r, p0, t0) < (2 * n) ){
+        if (DIST(r, p0, t0) < (2 * (n * n))){
             return 1;
         }else{
             return 0;
@@ -289,7 +289,7 @@ public class ControlledGrammarFunctions {
         }else{
             System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
             //due to the array indexing, normally, it's time(y+1), but that's 1-based, so mine is y+1 - 1 for each
-            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()] * v[u.getSecond()])));
+            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()+1] * v[u.getSecond()+1])));
         }
     }
 
@@ -333,8 +333,8 @@ public class ControlledGrammarFunctions {
      * @return
      */
     public int MAP(Piece startPiece, Piece targetPiece) {
-        int x = targetPiece.getLocation().getSecond();
-        int y = targetPiece.getLocation().getFirst();
+        int x = targetPiece.getLocation().getFirst();
+        int y = targetPiece.getLocation().getSecond();
         int z = targetPiece.getLocation().getThird();
 //        if (PrimaryController.getController().is2D && PrimaryController.getController().obstacleList.isEmpty()
 //                && ((Integer.valueOf(PrimaryController.getController().tf_board_size.getText()) == 8))) {
@@ -343,8 +343,8 @@ public class ControlledGrammarFunctions {
 //        }
         //System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
         //startPiece.print3DBoard();
-        if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
-            return startPiece.getReachabilityThreeDMap()[x][y][z];
+        if (startPiece.getReachabilityThreeDMap()[y][x][z] > 0) {
+            return startPiece.getReachabilityThreeDMap()[y][x][z]-1;
         } else {
             return -1;
         }
@@ -355,7 +355,7 @@ public class ControlledGrammarFunctions {
         //System.out.println("This is my startingLocation: " + startingLocation.getLocation() + " and my target: " + targetLocation.getLocation());
         
         int i = 0;
-        while (i < 2){
+        while (i < 2 || outputTraj.isEmpty()){
             GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
             if (traj.size() > 0 && traj.size()-1 <= l){

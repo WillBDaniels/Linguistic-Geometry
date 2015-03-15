@@ -1,5 +1,6 @@
 package edu.wdaniels.lg.abg;
 
+import edu.wdaniels.lg.gui.BoardGenerator;
 import edu.wdaniels.lg.gui.PrimaryController;
 import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.Triple;
@@ -67,14 +68,15 @@ public class GrammarGz {
     //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
     // to make this work out correctly.
     private int calculateLinearLocation(Piece piece) {
-        return ((piece.getLocation().getFirst() * n) + piece.getLocation().getSecond());
+        return ((piece.getLocation().getFirst()) + piece.getLocation().getSecond() * n);
     }
 
     public List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> produceZone() {
         while (currentStep != null){
-            System.out.println("Doing step: " + currentStep + " will it execute? : " + stepCheckPassed );
+            
             previousStep = currentStep;
             currentStep = checkFailParameter(currentStep);
+            System.out.println("Doing step: " + currentStep + " will it execute? : " + stepCheckPassed );
             if (currentStep == null){
                 continue;
             }
@@ -116,7 +118,6 @@ public class GrammarGz {
         for (int i = 0; i < v.length; i++){
             v[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), w, i);
         }
-        w = new int[n*n];
         for (int i = 0; i < time.length; i++){
             time[i] = (cgf.DIST(i, currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird())));
         }
@@ -131,25 +132,23 @@ public class GrammarGz {
     }
     
     private void handleQ4(){
-        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
-        Triple<Integer, Integer, Integer> yPiece = linearToTriple(currentA.getU().getSecond());
-        Piece newPiece = new Piece(targetPiece.getPieceType(),yPiece, "", "");
-        List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0,currentPiece,newPiece, currentA.getU().getThird());
+        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;       
+        List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0,currentPiece,currentTargetPiece, currentA.getU().getThird());
         traj = new Pair<>(trajectoryNew , time[currentA.getU().getSecond()]);
         trajectoryList.add(traj);
          for (int i = 0; i < w.length; i++){
-             w[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, new Piece(targetPiece.getPieceType(), linearToTriple(currentA.getU().getSecond()), "", ""), l), w, i);
+             w[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, currentTargetPiece, currentA.getU().getThird()), w, i);
          }
         for (int i = 0; i < nexttime.length; i++){
-            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, cgf.h(0,currentPiece, new Piece(targetPiece.getPieceType(),linearToTriple(currentA.getU().getSecond()), "", ""), l), time[currentA.getU().getSecond()] - l +1);
+            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, cgf.h(0,currentPiece, currentTargetPiece, currentA.getU().getThird()), time[currentA.getU().getSecond()] - currentA.getU().getThird() +1);
         }
         currentA = new A(currentA.getU(), v, w);
     }
     
     private Triple<Integer, Integer, Integer> linearToTriple(int linear){
         Triple<Integer, Integer, Integer> output = new Triple<>();
-        output.setFirst(linear / n);
-        output.setSecond(linear % n);
+        output.setFirst(linear % n);
+        output.setSecond(linear / n);
         output.setThird(0);
         return output;
     }
@@ -196,19 +195,33 @@ public class GrammarGz {
             case Q4:
                 boolean hasFoundPiece = false;
                 for (Piece piece: PrimaryController.getController().pieceList){
-                    if (piece.getLocation().compareTo(linearToTriple(currentA.u.getFirst())) == 0){
+                    Triple<Integer, Integer, Integer> locationFirst = linearToTriple(currentA.u.getFirst());
+                    if (piece.getLocation().compareTo(locationFirst) == 1){
                         currentPiece = piece;
-                        currentTargetPiece = new Piece(startingPiece.getPieceType(),linearToTriple(currentA.u.getSecond()), "", "");
+                        Triple<Integer, Integer, Integer> location = linearToTriple(currentA.u.getSecond());
+
+                        Piece temp = new Piece(startingPiece.getPieceType(),location, startingPiece.getReachablityEquation(), startingPiece.getPieceName());
+                        BoardGenerator bg = new BoardGenerator();
+                        temp.setReachabilityTwoDMap(bg.generate2DBoard(temp, PrimaryController.getController().obstacleList, n, false));
+                        currentTargetPiece = temp;
                         hasFoundPiece = true;
+                        currentPiece.printBoard();
+                        
                     }
                 }
                 if (!hasFoundPiece){
+                    
+                    stepCheckPassed = false;
                     outputStep = Step.Q3;
                     break;
                 }
-                if ((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getSecond() != y0)
-                        && (((!cgf.OPPOSE(currentPiece, currentTargetPiece)) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
-                        || ((cgf.OPPOSE(currentPiece, currentTargetPiece)) && (cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird())))) {
+                if (currentPiece.getPieceName().toLowerCase().contains("king")){
+                    System.out.println("Found the black king");
+                }
+                if (((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getFirst() != y0))
+                        && ((!cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
+                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird()
+                        && cgf.MAP(currentPiece, currentTargetPiece) > 0))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q3;
                 } else {
