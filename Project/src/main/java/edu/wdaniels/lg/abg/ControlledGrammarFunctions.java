@@ -189,20 +189,102 @@ public class ControlledGrammarFunctions {
         return matrix;
     }
 
-    public int ALPHA(int[][] nexttime, Piece x, Piece p0, Piece t0, int k) {
-        return 0;
+    ///////////////////////////////////////////////////////////////////////////////////
+    //Methods for the grammar of zones
+    
+    
+    /**
+     * 
+     * @param piece
+     * @return 
+     */
+     //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
+    // to make this work out correctly.
+    private int calculateLinearLocation(Piece piece) {
+        int n = PrimaryController.getController().getBoardSize();
+        return ((piece.getLocation().getFirst() * n) + piece.getLocation().getSecond());
+    }
+         //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
+    // to make this work out correctly.
+    private int calculateLinearLocation(Triple<Integer, Integer, Integer> location) {
+        int n = PrimaryController.getController().getBoardSize();
+        return ((location.getFirst() * n) + location.getSecond());
+    }
+    
+    public int ALPHA(int[] nexttime, int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0, int k) {
+        int n = PrimaryController.getController().getBoardSize();
+        if (DIST(x, p0, t0) != (2 * n) && (nexttime[x] != (2 * n))){
+            return (max(nexttime[x], k));
+        }
+        if ((DIST(x, p0, t0) != (2 *n)) && (nexttime[x] == (2 *n))){
+            return k;
+        }else{
+            return nexttime[x];
+        }
+    }
+    
+    private int max(int first, int second){
+        return (first > second ? first:second);
     }
 
-    public int DIST(Piece x, Piece p0, int t0) {
-        return 0;
+    /**
+     * This method calculates the 'distance' function for the grammar of zones. Essentially, 
+     * it allows for the function to determine the 'distance' a given point along the trajectory
+     * is from the certain piece. 
+     * 
+     * @param x
+     * @param p0
+     * @param t0
+     * @return 
+     */
+    public int DIST(int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0) {
+        int i = 0;
+        for (Triple location : t0){
+            if (i == 0){
+                i++;
+                continue;
+            }
+            if (x == calculateLinearLocation(location)){
+                return i+1;
+            }
+            i++;
+        }
+        return PrimaryController.getController().getBoardSize() * 2;
     }
 
-    public int g(Piece p0, int t0, int[][] w) {
-        return 0;
+    /**
+     * 
+     * @param p0
+     * @param t0
+     * @param w
+     * @param r
+     * @return 
+     */
+    public int g(Piece p0, List<Triple<Integer, Integer, Integer>> t0, int[] w, int r) {
+        int n = PrimaryController.getController().getBoardSize();
+        if (DIST(r, p0, t0) < (2 * n) ){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 
-    public Piece f(Piece u, Piece v) {
-        return null;
+    /**
+     * 
+     * @param u
+     * @param TIME
+     * @param v
+     * @param l
+     * @return 
+     */
+    public Triple<Integer, Integer, Integer> f(Triple<Integer, Integer, Integer> u,
+            int[] TIME, int[] v, int l) {
+        int n = PrimaryController.getController().getBoardSize();
+        if (((u.getFirst() != n) && (l > 0)) || ((u.getSecond() == n) && (l >=0))){
+            return new Triple(u.getFirst() + 1, u.getSecond(), l);
+        }else{
+            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()+1] * v[u.getSecond()+1])));
+        }
     }
 
     /**
@@ -216,10 +298,9 @@ public class ControlledGrammarFunctions {
      * @return 2n (n is the size of the board) unless you're on the piece, in
      * which case it returns r.
      */
-    public int init(Piece u, int r, int n) {
-        Triple<Integer, Integer, Integer> location = u.getLocation();
-        if ((location.getFirst() == 0) && (location.getSecond() == 0)
-                && (location.getThird() == 0)) {
+    public int init(Triple<Integer, Integer, Integer> u, int r, int n) {
+        if ((u.getFirst() == 0) && (u.getSecond() == 0)
+                && (u.getThird() == 0)) {
             return 2 * n;
         } else {
             return r;
@@ -254,17 +335,63 @@ public class ControlledGrammarFunctions {
 //            DistanceFinder df = new DistanceFinder();
 //            return df.find2DChessDistance(startPiece, targetPiece);
 //        }
-        System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
-        startPiece.print3DBoard();
+        //System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
+        //startPiece.print3DBoard();
         if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
             return startPiece.getReachabilityThreeDMap()[x][y][z];
         } else {
             return -1;
         }
     }
+    
+    public List<Triple<Integer, Integer, Integer>> h(int choice, Piece startingLocation, Piece targetLocation, int l){
+        List<List<Triple<Integer, Integer, Integer>>> outputTraj = new ArrayList<>();
+        GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
+        int i = 0;
+        while (gt1.hasMoreTrajectories() && i < 10){
+            List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
+            if (traj.size() <= l){
+                outputTraj.add(traj);
+            }
+            i++;
+        }
+        if (choice < outputTraj.size()){
+            return outputTraj.get(choice);
+        }else{
+            return outputTraj.get(outputTraj.size() -1);
+        }
+    }
+    
+    public class u{
+        private int x;
+        private int y; 
+        private int l;
 
-    public Pair<Piece, Piece> h(int index, Piece u) {
-        return null;
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        public int getL() {
+            return l;
+        }
+
+        public void setL(int l) {
+            this.l = l;
+        }
+        
+        
     }
 
 }

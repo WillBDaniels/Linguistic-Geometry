@@ -81,6 +81,11 @@ public class GrammarGt1 {
         return outputStep;
     }
 
+    
+    public boolean hasMoreTrajectories(){
+        return true;
+    }
+    
     /**
      * This is the primary public facing method that is used to collect the
      * trajectory points into a single 'trajectory' woo.
