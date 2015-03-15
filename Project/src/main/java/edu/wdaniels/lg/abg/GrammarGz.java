@@ -100,6 +100,8 @@ public class GrammarGz {
                     case Q5:
                         currentA = new A(new Triple<>(0, 0, 0), w, new int[n*n]);
                         System.arraycopy(nexttime, 0, time, 0, nexttime.length);
+                        System.arraycopy(w, 0, v, 0, w.length);
+                        w = new int[n*n];
                         break;
                     case Q6:
                         break;
@@ -115,11 +117,11 @@ public class GrammarGz {
         Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
         traj = new Pair<>(cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), l0+1);
         trajectoryList.add(traj);
+        List<Triple<Integer, Integer, Integer>> trajnew;
+        trajnew = cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird());
         for (int i = 0; i < v.length; i++){
-            v[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), w, i);
-        }
-        for (int i = 0; i < time.length; i++){
-            time[i] = (cgf.DIST(i, currentPiece, cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird())));
+            v[i] = cgf.g(currentPiece,trajnew , w, i);
+            time[i] = (cgf.DIST(i, currentPiece, trajnew));
         }
         currentA = new A((new Triple<>(0, 0, 0)),v , w);
     }
@@ -129,26 +131,37 @@ public class GrammarGz {
             nexttime[i] = cgf.init(currentA.u, nexttime[i], n);
         }
         currentA = new A(cgf.f(currentA.u, time, v), v, w);
+        if (currentA.getU().getThird() == (2 * (n *n))){
+            currentA.getU().setThird(0);
+        }
     }
     
     private void handleQ4(){
-        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;       
+        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj; 
+
         List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0,currentPiece,currentTargetPiece, currentA.getU().getThird());
         traj = new Pair<>(trajectoryNew , time[currentA.getU().getSecond()]);
         trajectoryList.add(traj);
          for (int i = 0; i < w.length; i++){
-             w[i] = cgf.g(currentPiece, cgf.h(0,currentPiece, currentTargetPiece, currentA.getU().getThird()), w, i);
+            w[i] = cgf.g(currentPiece, trajectoryNew, w, i);
+            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, trajectoryNew, time[currentA.getU().getSecond()] - currentA.getU().getThird() +1);
          }
         for (int i = 0; i < nexttime.length; i++){
-            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, cgf.h(0,currentPiece, currentTargetPiece, currentA.getU().getThird()), time[currentA.getU().getSecond()] - currentA.getU().getThird() +1);
+            
         }
         currentA = new A(currentA.getU(), v, w);
     }
     
     private Triple<Integer, Integer, Integer> linearToTriple(int linear){
         Triple<Integer, Integer, Integer> output = new Triple<>();
-        output.setFirst(linear % n);
-        output.setSecond(linear / n);
+        output.setFirst((linear % n));
+        output.setSecond((linear / n));
+        if (output.getFirst() == n){
+            output.setFirst(output.getFirst()-1);
+        }
+        if (output.getSecond() == n){
+            output.setSecond(output.getSecond() -1);
+        }
         output.setThird(0);
         return output;
     }
@@ -215,12 +228,9 @@ public class GrammarGz {
                     outputStep = Step.Q3;
                     break;
                 }
-                if (currentPiece.getPieceName().toLowerCase().contains("king")){
-                    System.out.println("Found the black king");
-                }
                 if (((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getFirst() != y0))
                         && ((!cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
-                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) ==  currentA.getU().getThird()
+                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird()
                         && cgf.MAP(currentPiece, currentTargetPiece) > 0))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q3;

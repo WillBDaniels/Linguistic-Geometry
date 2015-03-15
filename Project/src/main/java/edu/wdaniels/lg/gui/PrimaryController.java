@@ -363,8 +363,9 @@ public class PrimaryController {
             System.out.println("Generating zones...");
             List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> zone;
             zone = gz.produceZone();
+            trajectoryList.clear();
             zone.stream().forEach((pair) -> {
-                trajectoryList.clear();
+
                 trajectoryList.add(pair.getFirst()); 
             });
             Platform.runLater(() -> {

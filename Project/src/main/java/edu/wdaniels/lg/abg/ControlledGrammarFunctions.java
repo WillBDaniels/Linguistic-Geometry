@@ -295,10 +295,17 @@ public class ControlledGrammarFunctions {
         n = n*n;
         if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <=0))){
             System.out.println("Incrementing x, u is: " + u);
+            if (u.getFirst() == 3 && u.getSecond() == 81 && u.getThird() == 0){
+                System.out.println("...???");
+            }
             return new Triple(u.getFirst() + 1, u.getSecond(), u.getThird());
         }else{
             System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
             //due to the array indexing, normally, it's time(y+1), but that's 1-based, so mine is y+1 - 1 for each
+            if (u.getSecond() +1 > (n-1)){
+                return new Triple(1, n, 0);
+            }
+            
             return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()+1] * v[u.getSecond()+1])));
         }
     }
@@ -317,7 +324,7 @@ public class ControlledGrammarFunctions {
     public int init(Triple<Integer, Integer, Integer> u, int r, int n) {
         if ((u.getFirst() == 0) && (u.getSecond() == 0)
                 && (u.getThird() == 0)) {
-            return 2 * n;
+            return 2 * (n * n);
         } else {
             return r;
         }
@@ -365,12 +372,16 @@ public class ControlledGrammarFunctions {
         //System.out.println("This is my startingLocation: " + startingLocation.getLocation() + " and my target: " + targetLocation.getLocation());
         
         int i = 0;
-        
-        while (i < 1){
-            GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
+        int innerl = l;
+        while (outputTraj.isEmpty()){
+            GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), innerl, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
             if (traj.size() > 0 && traj.size()-1 <= l){
                 outputTraj.add(traj);
+            }else{
+                if (innerl > 0){
+                    innerl -= 1;
+                } 
             }
             i++;
         }
