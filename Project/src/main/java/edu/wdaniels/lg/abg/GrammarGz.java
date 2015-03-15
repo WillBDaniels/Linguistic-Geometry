@@ -200,7 +200,7 @@ public class GrammarGz {
                         currentPiece = piece;
                         Triple<Integer, Integer, Integer> location = linearToTriple(currentA.u.getSecond());
 
-                        Piece temp = new Piece(startingPiece.getPieceType(),location, startingPiece.getReachablityEquation(), startingPiece.getPieceName());
+                        Piece temp = new Piece(startingPiece.getPieceType(),location, currentPiece.getReachablityEquation(), startingPiece.getPieceName());
                         BoardGenerator bg = new BoardGenerator();
                         temp.setReachabilityTwoDMap(bg.generate2DBoard(temp, PrimaryController.getController().obstacleList, n, false));
                         currentTargetPiece = temp;
@@ -220,7 +220,7 @@ public class GrammarGz {
                 }
                 if (((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getFirst() != y0))
                         && ((!cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
-                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird()
+                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) ==  currentA.getU().getThird()
                         && cgf.MAP(currentPiece, currentTargetPiece) > 0))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q3;

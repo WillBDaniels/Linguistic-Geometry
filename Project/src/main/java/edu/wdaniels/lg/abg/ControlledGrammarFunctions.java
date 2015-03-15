@@ -75,6 +75,16 @@ public class ControlledGrammarFunctions {
         sum = sum(originalLocation, targetLocation, l0);
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
+//         if (originalLocation.getPieceName().equalsIgnoreCase("black king")){
+//            System.out.println("Black king marker ma: ");
+//            printSummedMap(markerMap);
+//            System.out.println("st1 map: ");
+//            printSummedMap(st1);
+//            System.out.println("st2 map: ");
+//            printSummedMap(st2);
+//             System.out.println("sum map: ");
+//             printSummedMap(sum);
+//        }
         int length = st2.length;
         int choice;
         List<Triple<Integer, Integer, Integer>> availableOptions = new ArrayList<>();
@@ -94,7 +104,7 @@ public class ControlledGrammarFunctions {
             return null;
         }
         choice = randInt(0, availableOptions.size() - 1);
-
+       
         Triple<Integer, Integer, Integer> choiceTriple = availableOptions.get(choice);
         markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
 
@@ -355,7 +365,8 @@ public class ControlledGrammarFunctions {
         //System.out.println("This is my startingLocation: " + startingLocation.getLocation() + " and my target: " + targetLocation.getLocation());
         
         int i = 0;
-        while (i < 2 || outputTraj.isEmpty()){
+        
+        while (i < 1){
             GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), l, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
             if (traj.size() > 0 && traj.size()-1 <= l){

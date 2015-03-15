@@ -99,6 +99,7 @@ public class GrammarGt1 {
         S start = new S(startPiece, targetPiece, l0);
         A temp = new A(start.x, start.y, start.l);
         Step nextStep = null;
+        currentStep = Step.Q0;
         while (currentStep != null) {
             currentStep = checkFailParameter(currentStep);
             if (currentStep == null) {
