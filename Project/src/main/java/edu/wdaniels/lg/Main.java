@@ -39,7 +39,7 @@ public class Main extends Application {
 
         mainStage.setScene(scene);
         //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
-        mainStage.setTitle("LG Project 2 - William Daniels");
+        mainStage.setTitle("LG Project 3 - William Daniels");
         //mainStage.setResizable(true);
         mainStage.show();
 
