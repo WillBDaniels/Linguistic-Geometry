@@ -218,7 +218,7 @@ public class GrammarGz {
                         temp.setReachabilityTwoDMap(bg.generate2DBoard(temp, PrimaryController.getController().obstacleList, n, false));
                         currentTargetPiece = temp;
                         hasFoundPiece = true;
-                        currentPiece.printBoard();
+                        //currentPiece.printBoard();
                         
                     }
                 }

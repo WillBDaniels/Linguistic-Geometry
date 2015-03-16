@@ -248,12 +248,16 @@ public class ControlledGrammarFunctions {
      */
     public int DIST(int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0) {
         int i = 0;
-        for (Triple location : t0){
+        for (Triple<Integer, Integer, Integer> location : t0){
+            int first = location.getThird();
+            int y  = location.getSecond();
+            int z = location.getFirst();
+            Triple newLoc = new Triple(first, y, z);
             if (i == 0){
                 i++;
                 continue;
             }
-            if (x == calculateLinearLocation(location)){
+            if (x == calculateLinearLocation(newLoc)){
                 return i+1;
             }
             i++;
@@ -295,9 +299,6 @@ public class ControlledGrammarFunctions {
         n = n*n;
         if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <=0))){
             System.out.println("Incrementing x, u is: " + u);
-            if (u.getFirst() == 3 && u.getSecond() == 81 && u.getThird() == 0){
-                System.out.println("...???");
-            }
             return new Triple(u.getFirst() + 1, u.getSecond(), u.getThird());
         }else{
             System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
@@ -373,14 +374,21 @@ public class ControlledGrammarFunctions {
         
         int i = 0;
         int innerl = l;
+        boolean goingDown = true;
         while (outputTraj.isEmpty()){
             GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), innerl, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
             if (traj.size() > 0 && traj.size()-1 <= l){
                 outputTraj.add(traj);
             }else{
-                if (innerl > 0){
+                if (innerl > 0 && goingDown){
                     innerl -= 1;
+                }else{
+                    goingDown = false;
+                    innerl += 1;
+                    if (innerl > PrimaryController.getController().getBoardSize()){
+                        goingDown = true;
+                    }
                 } 
             }
             i++;
