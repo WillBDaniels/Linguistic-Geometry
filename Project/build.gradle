@@ -7,8 +7,10 @@ apply plugin: 'maven'
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 def mainClassName = "edu.wdaniels.lg.Main"
-def mainAppName = "LG Project 2"
+def mainAppName = "LG Project 3"
 def versionNumber = "3.0"
+version = "3.0"
+
 jfxJar.enabled = false;
 jfxCopyLibs.enabled = false;
 test {
