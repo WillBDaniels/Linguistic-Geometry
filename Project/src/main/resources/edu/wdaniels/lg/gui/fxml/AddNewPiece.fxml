@@ -14,6 +14,21 @@
                 <TextField fx:id="tf_piece_name" prefHeight="25.0" prefWidth="182.0" promptText="Enter Piece Name" />
             </children>
         </HBox>
+      <HBox prefHeight="0.0" prefWidth="513.0" spacing="10.0">
+         <children>
+            <Label styleClass="basicLabel" text="Select Piece Image:">
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+            <Button fx:id="btn_add_image" mnemonicParsing="false" onAction="#addImage" text="Browse for Image" />
+            <Label fx:id="lbl_image_location" styleClass="basicLabel">
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+      </HBox>
         <HBox prefHeight="34.0" prefWidth="437.0" spacing="10.0">
             <children>
                 <Label prefHeight="27.0" styleClass="basicLabel" text="Piece Starting Location: " />

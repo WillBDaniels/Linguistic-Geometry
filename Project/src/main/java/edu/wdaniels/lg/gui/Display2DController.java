@@ -2,6 +2,7 @@ package edu.wdaniels.lg.gui;
 
 import edu.wdaniels.lg.abg.Piece;
 import javafx.fxml.FXML;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -41,11 +42,19 @@ public class Display2DController {
             pane1.getChildren().add(gp2);
 
         }
-
+        AnchorPane pane2 = new AnchorPane();
+        ImageView temp = new ImageView(piece.getPieceImage());
+        temp.setX((piece.getLocation().getFirst() * 40));
+        temp.setY((piece.getLocation().getSecond()) * 40);
+        temp.setPreserveRatio(false);
+        temp.setFitWidth(40);
+        temp.setFitHeight(40);
+        pane2.getChildren().add(temp);
         pane_main_grid.getChildren().addAll(gp);
         if (gp2 != null) {
             pane_main_grid.getChildren().add(pane1);
         }
+        pane_main_grid.getChildren().add(pane2);
 
     }
 

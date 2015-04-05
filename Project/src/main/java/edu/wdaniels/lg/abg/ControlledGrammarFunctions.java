@@ -104,7 +104,7 @@ public class ControlledGrammarFunctions {
             return null;
         }
         choice = randInt(0, availableOptions.size() - 1);
-       
+
         Triple<Integer, Integer, Integer> choiceTriple = availableOptions.get(choice);
         markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
 
@@ -200,65 +200,67 @@ public class ControlledGrammarFunctions {
 
     ///////////////////////////////////////////////////////////////////////////////////
     //Methods for the grammar of zones
-    
-    
     /**
-     * 
+     *
      * @param piece
-     * @return 
+     * @return
      */
-     //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
+    //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
     // to make this work out correctly.
     private int calculateLinearLocation(Piece piece) {
         int n = PrimaryController.getController().getBoardSize();
         return ((piece.getLocation().getFirst()) + piece.getLocation().getSecond() * n);
     }
-         //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
+
+    //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
     // to make this work out correctly.
     private int calculateLinearLocation(Triple<Integer, Integer, Integer> location) {
         int n = PrimaryController.getController().getBoardSize();
         return ((location.getFirst()) + location.getSecond() * n);
     }
-    
+
     public int ALPHA(int[] nexttime, int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0, int k) {
         int n = PrimaryController.getController().getBoardSize();
-        if (DIST(x, p0, t0) != (2 * n) && (nexttime[x] != (2 * n))){
+        if (DIST(x, p0, t0) != (2 * (n * n)) && (nexttime[x] != (2 * (n * n)))) {
             return (max(nexttime[x], k));
         }
-        if ((DIST(x, p0, t0) != (2 *n)) && (nexttime[x] == (2 *n))){
+        if ((DIST(x, p0, t0) != (2 * (n * n))) && (nexttime[x] == (2 * (n * n)))) {
             return k;
-        }else{
+        } else {
             return nexttime[x];
         }
     }
-    
-    private int max(int first, int second){
-        return (first > second ? first:second);
+
+    private int max(int first, int second) {
+        return (first > second ? first : second);
     }
 
     /**
-     * This method calculates the 'distance' function for the grammar of zones. Essentially, 
-     * it allows for the function to determine the 'distance' a given point along the trajectory
-     * is from the certain piece. 
-     * 
+     * This method calculates the 'distance' function for the grammar of zones.
+     * Essentially, it allows for the function to determine the 'distance' a
+     * given point along the trajectory is from the certain piece.
+     *
      * @param x
      * @param p0
      * @param t0
-     * @return 
+     * @return
      */
     public int DIST(int x, Piece p0, List<Triple<Integer, Integer, Integer>> t0) {
         int i = 0;
-        for (Triple<Integer, Integer, Integer> location : t0){
+        for (Triple<Integer, Integer, Integer> location : t0) {
             int first = location.getThird();
-            int y  = location.getSecond();
+            int y = location.getSecond();
             int z = location.getFirst();
             Triple newLoc = new Triple(first, y, z);
-            if (i == 0){
+            if (i == 0) {
                 i++;
                 continue;
             }
-            if (x == calculateLinearLocation(newLoc)){
-                return i+1;
+            if (i == t0.size() - 1) {
+                continue;
+            }
+            if (x == calculateLinearLocation(newLoc)) {
+                return i + 1;
             }
             i++;
         }
@@ -266,48 +268,48 @@ public class ControlledGrammarFunctions {
     }
 
     /**
-     * 
+     *
      * @param p0
      * @param t0
      * @param w
      * @param r
-     * @return 
+     * @return
      */
     public int g(Piece p0, List<Triple<Integer, Integer, Integer>> t0, int[] w, int r) {
         int n = PrimaryController.getController().getBoardSize();
-        if (DIST(r, p0, t0) < (2 * (n * n))){
+        if (DIST(r, p0, t0) < (2 * (n * n))) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
 
     /**
-     * This function (f) is the primary 'search' mechanism of the grammar of zones. 
-     * This goes through the table both first sear
-     * 
-     * 
+     * This function (f) is the primary 'search' mechanism of the grammar of
+     * zones. This goes through the table both first sear
+     *
+     *
      * @param u
      * @param TIME
      * @param v
      * @param l
-     * @return 
+     * @return
      */
     public Triple<Integer, Integer, Integer> f(Triple<Integer, Integer, Integer> u,
             int[] TIME, int[] v) {
         int n = PrimaryController.getController().getBoardSize();
-        n = n*n;
-        if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <=0))){
+        n = n * n;
+        if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <= 0))) {
             System.out.println("Incrementing x, u is: " + u);
             return new Triple(u.getFirst() + 1, u.getSecond(), u.getThird());
-        }else{
+        } else {
             System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
             //due to the array indexing, normally, it's time(y+1), but that's 1-based, so mine is y+1 - 1 for each
-            if (u.getSecond() +1 > (n-1)){
+            if (u.getSecond() + 1 > (n - 1)) {
                 return new Triple(1, n, 0);
             }
-            
-            return (new Triple(1, u.getSecond()+1, (TIME[u.getSecond()+1] * v[u.getSecond()+1])));
+
+            return (new Triple(1, u.getSecond() + 1, (TIME[u.getSecond() + 1] * v[u.getSecond() + 1])));
         }
     }
 
@@ -362,51 +364,55 @@ public class ControlledGrammarFunctions {
         //System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
         //startPiece.print3DBoard();
         if (startPiece.getReachabilityThreeDMap()[y][x][z] > 0) {
-            return startPiece.getReachabilityThreeDMap()[y][x][z]-1;
+            return startPiece.getReachabilityThreeDMap()[y][x][z] - 1;
         } else {
             return -1;
         }
     }
-    
-    public List<Triple<Integer, Integer, Integer>> h(int choice, Piece startingLocation, Piece targetLocation, int l){
+
+    public List<Triple<Integer, Integer, Integer>> h(int choice, Piece startingLocation, Piece targetLocation, int l) {
         List<List<Triple<Integer, Integer, Integer>>> outputTraj = new ArrayList<>();
         //System.out.println("This is my startingLocation: " + startingLocation.getLocation() + " and my target: " + targetLocation.getLocation());
-        
+
         int i = 0;
         int innerl = l;
         boolean goingDown = true;
-        while (outputTraj.isEmpty()){
+        while (outputTraj.isEmpty()) {
+            if (i > 20) {
+                System.out.println("stuff... fuck me ");
+            }
             GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), innerl, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
-            if (traj.size() > 0 && traj.size()-1 <= l){
+            if (traj.size() > 0) {
                 outputTraj.add(traj);
-            }else{
-                if (innerl > 0 && goingDown){
+            } else {
+                if (innerl > 0 && goingDown) {
                     innerl -= 1;
-                }else{
+                } else {
                     goingDown = false;
                     innerl += 1;
-                    if (innerl > PrimaryController.getController().getBoardSize()){
+                    if (innerl > PrimaryController.getController().getBoardSize()) {
                         goingDown = true;
                     }
-                } 
+                }
             }
             i++;
         }
-        if (choice < outputTraj.size()){
+        if (choice < outputTraj.size()) {
             //outputTraj.get(choice).remove(0);
             return outputTraj.get(choice);
-        }else{
-            if (outputTraj.isEmpty()){
+        } else {
+            if (outputTraj.isEmpty()) {
                 return null;
             }
-            return outputTraj.get(outputTraj.size() -1);
+            return outputTraj.get(outputTraj.size() - 1);
         }
     }
-    
-    public class u{
+
+    public class u {
+
         private int x;
-        private int y; 
+        private int y;
         private int l;
 
         public int getX() {
@@ -432,9 +438,9 @@ public class ControlledGrammarFunctions {
         public void setL(int l) {
             this.l = l;
         }
-        
+
         @Override
-        public String toString(){
+        public String toString() {
             return "( " + x + " ," + y + " ," + l + " )";
         }
     }

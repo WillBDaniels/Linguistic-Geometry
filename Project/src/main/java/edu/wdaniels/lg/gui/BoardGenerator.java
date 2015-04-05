@@ -51,7 +51,6 @@ public class BoardGenerator {
                                         if (!markerBoard[xInner][yInner]) {
                                             markerBoard[xInner][yInner] = true;
                                             foundNewMove = true;
-                                            //System.out.println("it's true! i is: " + i + " xInner: " + xInner + " yInner: " + yInner);
                                             board[xInner][yInner] = i + 1;
                                         }
 

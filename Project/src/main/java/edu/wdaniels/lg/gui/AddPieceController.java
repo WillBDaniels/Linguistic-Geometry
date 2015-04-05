@@ -2,42 +2,60 @@ package edu.wdaniels.lg.gui;
 
 import edu.wdaniels.lg.abg.Piece;
 import edu.wdaniels.lg.structures.Triple;
+import java.io.File;
 import java.io.IOException;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
 
 /**
  *
  * @author William
  */
 public class AddPieceController {
-    
+
     @FXML
-    private TextField tf_piece_name, tf_piece_x_location, tf_piece_y_location, tf_piece_z_location; 
+    private TextField tf_piece_name, tf_piece_x_location, tf_piece_y_location, tf_piece_z_location;
     @FXML
     private TextArea ta_reachability_equation;
-    
+
     @FXML
-    private void initialize(){}
-    
+    private Label lbl_image_location;
+
     @FXML
-    private void addNewPiece(){
-        if (!showInvalidFields()){
+    private void initialize() {
+    }
+
+    @FXML
+    private void addImage() {
+        FileChooser fc = new FileChooser();
+        File selection = fc.showOpenDialog(PrimaryController.getController().getAddPieceStage());
+        if (selection != null) {
+            lbl_image_location.setText(selection.getAbsolutePath());
+        }
+    }
+
+    @FXML
+    private void addNewPiece() {
+        if (!showInvalidFields()) {
             return;
         }
         Piece newPiece = new Piece("", new Triple(Integer.valueOf(tf_piece_x_location.getText()),
                 Integer.valueOf(tf_piece_y_location.getText()), Integer.valueOf(tf_piece_z_location.getText())),
                 ta_reachability_equation.getText(), tf_piece_name.getText());
+        newPiece.setPieceImage(new Image(new File(lbl_image_location.getText()).toURI().toString()));
         PrimaryController.getController().addNewPiece(newPiece);
-        
+
     }
-    
-        private void displayErrorAndStyle(Node node, String errorMessage, final StringProperty textProperty) {
+
+    private void displayErrorAndStyle(Node node, String errorMessage, final StringProperty textProperty) {
         PopErrorWindow error = new PopErrorWindow();
         PopErrorWindow.setCustomErrorMessage(errorMessage);
         try {
@@ -58,6 +76,7 @@ public class AddPieceController {
         });
 
     }
+
     /**
      * This method goes through the entire pane and finds which fields are
      * invalid and displays a reasonable message accordingly to the user, in the

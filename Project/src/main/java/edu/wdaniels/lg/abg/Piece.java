@@ -1,6 +1,7 @@
 package edu.wdaniels.lg.abg;
 
 import edu.wdaniels.lg.structures.Triple;
+import javafx.scene.image.Image;
 
 /**
  * This class is for defining a 'piece' object on the board. The piece is
@@ -16,6 +17,7 @@ public class Piece {
     private int[][][] reachabilityThreeDMap;
     private int[][] reachabilityTwoDMap;
     private String pieceType = "";
+    private Image pieceImage;
 
     public int[][][] getReachabilityThreeDMap() {
         if (reachabilityThreeDMap == null && reachabilityTwoDMap != null) {
@@ -80,7 +82,8 @@ public class Piece {
      * 'piece' class doesn't do a whole lot, really. mostly just holds the state
      * of a few different values for us.
      *
-     * @param pieceType This is the actual type of the piece (aka: white piece, black piece)
+     * @param pieceType This is the actual type of the piece (aka: white piece,
+     * black piece)
      * @param location the location of the piece on a given board. The piece
      * doesn't check to see if the board it's being placed on actually has the
      * specified location, that's for the board to decide!
@@ -101,6 +104,14 @@ public class Piece {
 
     public void setLocation(Triple<Integer, Integer, Integer> location) {
         this.location = location;
+    }
+
+    public void setPieceImage(Image img) {
+        this.pieceImage = img;
+    }
+
+    public Image getPieceImage() {
+        return pieceImage;
     }
 
     public String getReachablityEquation() {

@@ -22,9 +22,9 @@ public class GrammarGz {
     private Piece currentPiece;
     private Piece currentTargetPiece;
     private final List<Triple<Integer, Integer, Integer>> primaryTraj;
-    private  int[] w;
-    private final  int[] v;
-    private final  int[] time;
+    private int[] w;
+    private final int[] v;
+    private final int[] time;
     private final int[] nexttime;
     private int x = 0, y = 0;
     private final int x0, y0;
@@ -36,8 +36,8 @@ public class GrammarGz {
     private final List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> trajectoryList = new ArrayList<>();
     private final ControlledGrammarFunctions cgf;
     private final boolean[][][] markerMap;
+    private String currentType;
 
-    
     private Step previousStep = Step.Q0;
     private Step currentStep = Step.Q0;
 
@@ -61,8 +61,9 @@ public class GrammarGz {
         cgf = new ControlledGrammarFunctions(markerMap);
         x0 = calculateLinearLocation(startingPiece);
         y0 = calculateLinearLocation(targetPiece);
-        l0 = primaryTraj.size()-1;
+        l0 = primaryTraj.size() - 1;
         l = l0;
+        currentType = startingPiece.getPieceType();
     }
 
     //TODO make sure the piece locations are zero-based, if they're not, we'll need to subtract one
@@ -72,16 +73,16 @@ public class GrammarGz {
     }
 
     public List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> produceZone() {
-        while (currentStep != null){
-            
+        while (currentStep != null) {
+
             previousStep = currentStep;
             currentStep = checkFailParameter(currentStep);
-            System.out.println("Doing step: " + currentStep + " will it execute? : " + stepCheckPassed );
-            if (currentStep == null){
+            // System.out.println("Doing step: " + currentStep + " will it execute? : " + stepCheckPassed);
+            if (currentStep == null) {
                 continue;
             }
-            if (stepCheckPassed){
-                switch(previousStep){
+            if (stepCheckPassed) {
+                switch (previousStep) {
                     case Q0:
                         break;
                     case Q1:
@@ -98,10 +99,11 @@ public class GrammarGz {
                         handleQ4();
                         break;
                     case Q5:
-                        currentA = new A(new Triple<>(0, 0, 0), w, new int[n*n]);
+                        currentType = (currentType.equals(startingPiece.getPieceType()) ? targetPiece.getPieceType() : startingPiece.getPieceType());
+                        currentA = new A(new Triple<>(0, 0, 0), w, new int[n * n]);
                         System.arraycopy(nexttime, 0, time, 0, nexttime.length);
                         System.arraycopy(w, 0, v, 0, w.length);
-                        w = new int[n*n];
+                        w = new int[n * n];
                         break;
                     case Q6:
                         break;
@@ -110,57 +112,59 @@ public class GrammarGz {
         }
         return trajectoryList;
     }
-    
-    
-    
-    private void handleQ2(){
+
+    private void handleQ2() {
         Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
-        traj = new Pair<>(cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird()), l0+1);
+        traj = new Pair<>(cgf.h(0, currentPiece, targetPiece, currentA.getU().getThird()), l0 + 1);
         trajectoryList.add(traj);
         List<Triple<Integer, Integer, Integer>> trajnew;
-        trajnew = cgf.h(0,currentPiece, targetPiece, currentA.getU().getThird());
-        for (int i = 0; i < v.length; i++){
-            v[i] = cgf.g(currentPiece,trajnew , w, i);
+        trajnew = cgf.h(0, currentPiece, targetPiece, currentA.getU().getThird());
+        for (int i = 0; i < v.length; i++) {
+            v[i] = cgf.g(currentPiece, trajnew, w, i);
             time[i] = (cgf.DIST(i, currentPiece, trajnew));
         }
-        currentA = new A((new Triple<>(0, 0, 0)),v , w);
+        currentA = new A((new Triple<>(0, 0, 0)), v, w);
     }
-    
-    private void handleQ3(){  
-        for (int i = 0; i < nexttime.length; i++){
+
+    private void handleQ3() {
+        for (int i = 0; i < nexttime.length; i++) {
             nexttime[i] = cgf.init(currentA.u, nexttime[i], n);
         }
         currentA = new A(cgf.f(currentA.u, time, v), v, w);
-        if (currentA.getU().getThird() == (2 * (n *n))){
+        if (currentA.getU().getThird() == (2 * (n * n))) {
             currentA.getU().setThird(0);
         }
     }
-    
-    private void handleQ4(){
-        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj; 
 
-        List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0,currentPiece,currentTargetPiece, currentA.getU().getThird());
-        traj = new Pair<>(trajectoryNew , time[currentA.getU().getSecond()]);
+    private void handleQ4() {
+        Pair<List<Triple<Integer, Integer, Integer>>, Integer> traj;
+
+        List<Triple<Integer, Integer, Integer>> trajectoryNew = cgf.h(0, currentPiece, currentTargetPiece, currentA.getU().getThird());
+        if (isTrajectoryInList(trajectoryList, trajectoryNew)) {
+            return;
+        }
+        traj = new Pair<>(trajectoryNew, time[currentA.getU().getSecond()]);
+
         trajectoryList.add(traj);
-         for (int i = 0; i < w.length; i++){
+        for (int i = 0; i < w.length; i++) {
             w[i] = cgf.g(currentPiece, trajectoryNew, w, i);
-            nexttime[i] = cgf.ALPHA(nexttime,i,currentPiece, trajectoryNew, time[currentA.getU().getSecond()] - currentA.getU().getThird() +1);
-         }
-        for (int i = 0; i < nexttime.length; i++){
-            
+            nexttime[i] = cgf.ALPHA(nexttime, i, currentPiece, trajectoryNew, time[currentA.getU().getSecond()] - currentA.getU().getThird() + 1);
+        }
+        for (int i = 0; i < nexttime.length; i++) {
+
         }
         currentA = new A(currentA.getU(), v, w);
     }
-    
-    private Triple<Integer, Integer, Integer> linearToTriple(int linear){
+
+    private Triple<Integer, Integer, Integer> linearToTriple(int linear) {
         Triple<Integer, Integer, Integer> output = new Triple<>();
         output.setFirst((linear % n));
         output.setSecond((linear / n));
-        if (output.getFirst() == n){
-            output.setFirst(output.getFirst()-1);
+        if (output.getFirst() == n) {
+            output.setFirst(output.getFirst() - 1);
         }
-        if (output.getSecond() == n){
-            output.setSecond(output.getSecond() -1);
+        if (output.getSecond() == n) {
+            output.setSecond(output.getSecond() - 1);
         }
         output.setThird(0);
         return output;
@@ -176,7 +180,7 @@ public class GrammarGz {
      * @return the next step in the sequence, if there is one, null otherwise.
      */
     private GrammarGz.Step checkFailParameter(Step currentStep) {
-        
+
         Step outputStep;
         switch (currentStep) {
             case Q0:
@@ -184,7 +188,7 @@ public class GrammarGz {
                 outputStep = Step.Q1;
                 break;
             case Q1:
-                if (cgf.MAP(startingPiece, targetPiece) <= l && l <= l0 && (cgf.OPPOSE(startingPiece, targetPiece))) {
+                if (cgf.MAP(startingPiece, targetPiece) <= l && l <= l0 && (cgf.OPPOSE(currentPiece, targetPiece))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q2;
                 } else {
@@ -207,30 +211,33 @@ public class GrammarGz {
                 break;
             case Q4:
                 boolean hasFoundPiece = false;
-                for (Piece piece: PrimaryController.getController().pieceList){
+                for (Piece piece : PrimaryController.getController().pieceList) {
                     Triple<Integer, Integer, Integer> locationFirst = linearToTriple(currentA.u.getFirst());
-                    if (piece.getLocation().compareTo(locationFirst) == 1){
+                    if (piece.getLocation().compareTo(locationFirst) == 1) {
                         currentPiece = piece;
                         Triple<Integer, Integer, Integer> location = linearToTriple(currentA.u.getSecond());
 
-                        Piece temp = new Piece(startingPiece.getPieceType(),location, currentPiece.getReachablityEquation(), startingPiece.getPieceName());
+                        Piece temp = new Piece(currentType, location, currentPiece.getReachablityEquation(), startingPiece.getPieceName());
                         BoardGenerator bg = new BoardGenerator();
                         temp.setReachabilityTwoDMap(bg.generate2DBoard(temp, PrimaryController.getController().obstacleList, n, false));
                         currentTargetPiece = temp;
                         hasFoundPiece = true;
                         //currentPiece.printBoard();
-                        
+
                     }
                 }
-                if (!hasFoundPiece){
-                    
+                if (!hasFoundPiece) {
+
                     stepCheckPassed = false;
                     outputStep = Step.Q3;
                     break;
                 }
+                if (currentPiece.getPieceName().equalsIgnoreCase("white king")) {
+                    System.out.println("King!");
+                }
                 if (((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getFirst() != y0))
                         && ((!cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
-                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <=  currentA.getU().getThird()
+                        || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <= currentA.getU().getThird()
                         && cgf.MAP(currentPiece, currentTargetPiece) > 0))) {
                     stepCheckPassed = true;
                     outputStep = Step.Q3;
@@ -257,19 +264,39 @@ public class GrammarGz {
         }
         return outputStep;
     }
-    
 
+    private boolean isTrajectoryInList(List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> trajList, List<Triple<Integer, Integer, Integer>> traj) {
+        boolean isInList = false;
+        int i = 0;
+        for (Pair<List<Triple<Integer, Integer, Integer>>, Integer> item : trajList) {
+            for (Triple<Integer, Integer, Integer> innerItem : item.getFirst()) {
+                if (i >= traj.size()) {
+                    isInList = false;
+                    break;
+                }
+                isInList = (innerItem.getFirst().equals(traj.get(i).getFirst())) && (innerItem.getSecond() == traj.get(i).getSecond()) && (innerItem.getThird() == traj.get(i).getThird());
+                i++;
+            }
+            i = 0;
+            if (isInList) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
-     * This iterates through the given 2D array and checks to see if any of the values are
-     * greater than 0. If they are, it returns false. Otherwise it returns true. 
-     * 
-     * @param array The array that we're going to iterate through to see if it's empty
-     * @return True if every element in the integer array is 0, false otherwise. 
+     * This iterates through the given 2D array and checks to see if any of the
+     * values are greater than 0. If they are, it returns false. Otherwise it
+     * returns true.
+     *
+     * @param array The array that we're going to iterate through to see if it's
+     * empty
+     * @return True if every element in the integer array is 0, false otherwise.
      */
     private boolean checkIfEmptyArray(int[] array) {
-        for (int i = 0; i < array.length; i++){
-            if (array[i] != 0){
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != 0) {
                 return false;
             }
         }
@@ -277,8 +304,8 @@ public class GrammarGz {
     }
 
     /**
-     * This class just represents the 'A' state of the grammar which is used to hold some state 
-     * between steps. 
+     * This class just represents the 'A' state of the grammar which is used to
+     * hold some state between steps.
      */
     private class A {
 
@@ -292,13 +319,11 @@ public class GrammarGz {
             this.w = w;
         }
 
-        
-        
         public Triple<Integer, Integer, Integer> getU() {
             return u;
         }
 
-        public void setU(Triple<Integer, Integer, Integer> u) {            
+        public void setU(Triple<Integer, Integer, Integer> u) {
             this.u = u;
         }
 
@@ -317,8 +342,6 @@ public class GrammarGz {
         public void setW(int[] w) {
             this.w = w;
         }
-
-        
 
     }
 

@@ -39,6 +39,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -126,6 +127,10 @@ public class PrimaryController {
             }
             if (trajectoryList.isEmpty()) {
                 ta_error_pane.setText("I'm sorry, no trajectories of that length found, please check the distance pane and try again.");
+                Platform.runLater(() -> {
+                    btn_traj_display.setDisable(false);
+                    pi_indicator.setVisible(false);
+                });
                 return;
             }
             Platform.runLater(() -> {
@@ -358,41 +363,38 @@ public class PrimaryController {
         Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
         Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
         pi_indicator.setVisible(true);
-        Thread t = new Thread(()->{
-             GrammarGz gz = new GrammarGz(start, target, trajectoryList.get(0), getBoardSize());
+        Thread t = new Thread(() -> {
+            GrammarGz gz = new GrammarGz(start, target, trajectoryList.get(0), getBoardSize());
             System.out.println("Generating zones...");
             List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> zone;
             zone = gz.produceZone();
             trajectoryList.clear();
             zone.stream().forEach((pair) -> {
 
-                trajectoryList.add(pair.getFirst()); 
+                trajectoryList.add(pair.getFirst());
             });
             Platform.runLater(() -> {
-            try {
-                displayTraj2D = new Stage(StageStyle.DECORATED);
-                Parent root;
-                root = FXMLLoader.load(getClass().getResource("fxml/DisplayTraj2D.fxml"));
-                Scene scene = new Scene(root);
+                try {
+                    displayTraj2D = new Stage(StageStyle.DECORATED);
+                    Parent root;
+                    root = FXMLLoader.load(getClass().getResource("fxml/DisplayTraj2D.fxml"));
+                    Scene scene = new Scene(root);
 
-                displayTraj2D.setScene(scene);
-                //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
-                displayTraj2D.setTitle("Display 2D Trajectory Table");
-                //mainStage.setResizable(true);
-                displayTraj2D.show();
-                pi_indicator.setVisible(false);
-            } catch (IOException ex) {
-                ex.printStackTrace(System.err);
-                Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                    displayTraj2D.setScene(scene);
+                    //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
+                    displayTraj2D.setTitle("Display 2D Trajectory Table");
+                    //mainStage.setResizable(true);
+                    displayTraj2D.show();
+                    pi_indicator.setVisible(false);
+                } catch (IOException ex) {
+                    ex.printStackTrace(System.err);
+                    Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-
-         });
+            });
         });
         t.start();
-       
-        
-        
+
         System.out.println("Done...?");
     }
 
@@ -561,13 +563,43 @@ public class PrimaryController {
         return Integer.valueOf(tf_board_size.getText());
     }
 
+    private void generateMidtermBoard() {
+        pieceList.clear();
+        obstacleList.clear();
+        String kingRelation = "((y1-x1 <= 1) && (y1-x1 >= -1)) && ((y2-x2 <= 1) && (y2-x2 >= -1))";
+        String towerRelation = "((y1-x1 == 1) && (y1-x1 >= -1)) && ((y2-x2 == 1) && (y2-x2 >= -1))";
+        String knightRelation = "(((y1-x1 == 1) || (x1-y1) == 1) && (((y2-x2 == 2) || (x2-y2 == 2)))) || (((y1-x1 == 2) || (x1 -y1 == 2))  && ((y2-x2 == 1) || (x2-y2 ==1)))";
+
+        Piece king, wKnight, btower1, btower2, btower3, btower4, wtower1, target;
+
+        Obstacle block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11;
+
+        king = new Piece("black", new Triple(7, 0, 0), kingRelation, "Black King");
+        wKnight = new Piece("white", new Triple(6, 5, 0), knightRelation, "White Knight");
+        btower1 = new Piece("black", new Triple(3, 7, 0), towerRelation, "Black Tower 1");
+        btower2 = new Piece("black", new Triple(7, 5, 0), towerRelation, "Black Tower 2");
+        btower3 = new Piece("black", new Triple(6, 2, 0), towerRelation, "Black Tower 3");
+        btower4 = new Piece("black", new Triple(4, 1, 0), towerRelation, "Black Tower 4");
+        wtower1 = new Piece("white", new Triple(7, 2, 0), towerRelation, "White Tower 1");
+        target = new Piece("white", new Triple(2, 1, 0), kingRelation, "Target");
+        tf_board_size.setText("8");
+        pieceList.addAll(Arrays.asList(king, target, wKnight, btower1, btower2, btower3, btower4, wtower1));
+        refreshPieceList();
+    }
+
     @FXML
     private void generateTestBoard() {
+        //generateMidtermBoard();
+
         pieceList.clear();
         obstacleList.clear();
         String whitePawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == 1))";
         String blackPawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == -1))";
         String kingRelation = "((y1-x1 <=1) && (y1-x1 >=-1)) && ((y2-x2 <=1) && (y2-x2 >=-1))";
+        String knightRelation = "(((y1-x1 == 1) || (x1-y1) == 1) && (((y2-x2 == 2) || (x2-y2 == 2)))) || (((y1-x1 == 2) || (x1 -y1 == 2))  && ((y2-x2 == 1) || (x2-y2 ==1)))";
+        String bishopRelation = "((((y2-x2) == (y1-x1)) || ((x2 - y2) == (x1 - y1)) || ((x2-y2) == (y1-x1) || (x1-y1) == (y2-x2))))";
+        String rookRelation = "((x1 == y1) || (y2 == x2))";
+        String queenRelation = rookRelation + " || " + bishopRelation;
 
         Piece wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7,
                 bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7,
@@ -575,34 +607,80 @@ public class PrimaryController {
                 bKing, bBish0, bBish1, bRook0, bRook1, bKnight0, bKnight1, bQueen;
         //White Pawns
         wPawn0 = new Piece("white", new Triple(0, 1, 0), whitePawnRelation, "White Pawn 0");
+        wPawn0.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn1 = new Piece("white", new Triple(1, 1, 0), whitePawnRelation, "White Pawn 1");
+        wPawn1.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn2 = new Piece("white", new Triple(2, 1, 0), whitePawnRelation, "White Pawn 2");
+        wPawn2.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn3 = new Piece("white", new Triple(3, 1, 0), whitePawnRelation, "White Pawn 3");
+        wPawn3.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn4 = new Piece("white", new Triple(4, 1, 0), whitePawnRelation, "White Pawn 4");
+        wPawn4.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn5 = new Piece("white", new Triple(5, 1, 0), whitePawnRelation, "White Pawn 5");
+        wPawn5.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn6 = new Piece("white", new Triple(6, 1, 0), whitePawnRelation, "White Pawn 6");
+        wPawn6.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
         wPawn7 = new Piece("white", new Triple(7, 1, 0), whitePawnRelation, "White Pawn 7");
+        wPawn7.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
 
         //White Royalty
         wKing = new Piece("white", new Triple(4, 0, 0), kingRelation, "White King");
+        wKing.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteKing.png")));
+        wQueen = new Piece("white", new Triple(3, 0, 0), queenRelation, "White Queen");
+        wQueen.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteQueen.png")));
+        wBish0 = new Piece("white", new Triple(5, 0, 0), bishopRelation, "White Bishop 1");
+        wBish0.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteBishop.png")));
+        wBish1 = new Piece("white", new Triple(2, 0, 0), bishopRelation, "White Bishop 2");
+        wBish1.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteBishop.png")));
+        wKnight0 = new Piece("white", new Triple(1, 0, 0), knightRelation, "White Knight 1");
+        wKnight0.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteKnight.png")));
+        wKnight1 = new Piece("white", new Triple(6, 0, 0), knightRelation, "White Knight 2");
+        wKnight1.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteKnight.png")));
+        wRook0 = new Piece("white", new Triple(0, 0, 0), rookRelation, "White Rook 1");
+        wRook0.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteRook.png")));
+        wRook1 = new Piece("white", new Triple(7, 0, 0), rookRelation, "White Rook 2");
+        wRook1.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteRook.png")));
 
         //Black Pawns
         bPawn0 = new Piece("black", new Triple(0, 6, 0), blackPawnRelation, "Black Pawn 0");
+        bPawn0.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn1 = new Piece("black", new Triple(1, 6, 0), blackPawnRelation, "Black Pawn 1");
+        bPawn1.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn2 = new Piece("black", new Triple(2, 6, 0), blackPawnRelation, "Black Pawn 2");
+        bPawn2.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn3 = new Piece("black", new Triple(3, 6, 0), blackPawnRelation, "Black Pawn 3");
+        bPawn3.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn4 = new Piece("black", new Triple(4, 6, 0), blackPawnRelation, "Black Pawn 4");
+        bPawn4.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn5 = new Piece("black", new Triple(5, 6, 0), blackPawnRelation, "Black Pawn 5");
+        bPawn5.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn6 = new Piece("black", new Triple(6, 6, 0), blackPawnRelation, "Black Pawn 6");
+        bPawn6.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
         bPawn7 = new Piece("black", new Triple(7, 6, 0), blackPawnRelation, "Black Pawn 7");
+        bPawn7.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
 
         //Black Royalty
+        bQueen = new Piece("black", new Triple(4, 7, 0), queenRelation, "Black Queen");
+        bQueen.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackQueen.png")));
         bKing = new Piece("black", new Triple(3, 7, 0), kingRelation, "Black King");
+        bKing.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackKing.png")));
+        bBish0 = new Piece("black", new Triple(5, 7, 0), bishopRelation, "Black Bishop 1");
+        bBish0.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackBishop.png")));
+        bBish1 = new Piece("black", new Triple(2, 7, 0), bishopRelation, "Black Bishop 2");
+        bBish1.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackBishop.png")));
+        bKnight0 = new Piece("black", new Triple(1, 7, 0), knightRelation, "Black Knight 1");
+        bKnight0.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackKnight.png")));
+        bKnight1 = new Piece("black", new Triple(6, 7, 0), knightRelation, "Black Knight 2");
+        bKnight1.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackKnight.png")));
+        bRook0 = new Piece("black", new Triple(0, 7, 0), rookRelation, "Black Rook 0");
+        bRook0.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackRook.png")));
+        bRook1 = new Piece("black", new Triple(7, 7, 0), rookRelation, "Black Rook 1");
+        bRook1.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackRook.png")));
 
-        tf_board_size.setText("8");
-        pieceList.addAll(Arrays.asList(wKing, bKing, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7, bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7));
+        tf_board_size.setText("9");
+        pieceList.addAll(Arrays.asList(wKing, bKing, wQueen, bQueen, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7, bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7,
+                wBish0, wBish1, wKnight0, wKnight1, wRook0, wRook1, bBish0, bBish1, bKnight0, bKnight1, bRook0, bRook1));
         refreshPieceList();
-
     }
 
     @FXML
@@ -733,19 +811,19 @@ public class PrimaryController {
                             if (((Piece) newValue) != piece) {
                                 if (Integer.parseInt(tf_board_size.getText()) == 8) {
                                     if (obstacleList.isEmpty() && is2D) {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece)));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece) - 1));
                                     } else {
                                         if (is2D) {
-                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
+                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece) - 1));
                                         } else {
-                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
+                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece) - 1));
                                         }
                                     }
                                 } else {
                                     if (is2D) {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece) - 1));
                                     } else {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece) - 1));
                                     }
                                 }
                             }

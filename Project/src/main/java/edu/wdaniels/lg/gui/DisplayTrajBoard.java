@@ -1,11 +1,12 @@
 package edu.wdaniels.lg.gui;
 
 import edu.wdaniels.lg.abg.Piece;
+import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javafx.fxml.FXML;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -20,6 +21,7 @@ import javafx.scene.shape.Line;
 public class DisplayTrajBoard {
 
     private static DisplayTrajBoard controller;
+    private List<Pair<Triple<Integer, Integer, Integer>, Image>> imageList = new ArrayList<>();
 
     @FXML
     private StackPane pane_main_grid;
@@ -28,6 +30,10 @@ public class DisplayTrajBoard {
     public void initialize() {
         controller = this;
         displayPieceMap((Piece) PrimaryController.getController().lv_traj_starting.getSelectionModel().getSelectedItem());
+    }
+
+    public void setPieceImages(List<Pair<Triple<Integer, Integer, Integer>, Image>> inputImages) {
+        this.imageList = inputImages;
     }
 
     public void displayPieceMap(Piece piece) {
@@ -57,7 +63,6 @@ public class DisplayTrajBoard {
             circleList.add(tempList);
         }
 
-        
         //circleList.remove(circleList.size() - 1);
         List<Line> lineList = new ArrayList<>();
         for (List<Circle> circleList1 : circleList) {
@@ -67,7 +72,7 @@ public class DisplayTrajBoard {
                 tempLine.setStroke(Color.GREEN);
                 tempLine.setStartX(circleList1.get(y).getLayoutX());
                 tempLine.setStartY(circleList1.get(y).getLayoutY());
-                if (y+1 == circleList1.size()){
+                if (y + 1 == circleList1.size()) {
                     continue;
                 }
                 tempLine.setEndX(circleList1.get(y + 1).getLayoutX());
