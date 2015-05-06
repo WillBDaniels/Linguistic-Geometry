@@ -14,14 +14,18 @@ import org.mvel2.MVEL;
  */
 public class BoardGenerator {
 
+    public static boolean multipleRunFlag = false;
+    public static Serializable longTermCompile = null;
+    private Serializable compiled = null;
+
     public int[][] generate2DBoard(Piece piece, ArrayList<Obstacle> obstacles, int boardSize, boolean center) {
         int[][] board = new int[boardSize][boardSize];
         boolean[][] markerBoard = new boolean[boardSize][boardSize];
-        for (int a = 0; a < boardSize; a++) {
-            for (int b = 0; b < boardSize; b++) {
-                markerBoard[a][b] = false;
-            }
-        }
+//        for (int a = 0; a < boardSize; a++) {
+//            for (int b = 0; b < boardSize; b++) {
+//                markerBoard[a][b] = false;
+//            }
+//        }
         if (center) {
             board[new Double(Math.ceil(boardSize / 2)).intValue()][new Double(Math.ceil(boardSize / 2)).intValue()] = 1;
             markerBoard[new Double(Math.ceil(boardSize / 2)).intValue()][new Double(Math.ceil(boardSize / 2)).intValue()] = true;
@@ -31,6 +35,17 @@ public class BoardGenerator {
         }
         boolean foundNewMove = true;
         int i = 1;
+        //compiled = MVEL.compileExpression(piece.getReachablityEquation());
+        if (!multipleRunFlag) {
+            compiled = MVEL.compileExpression(piece.getReachablityEquation());
+        } else {
+            if (longTermCompile != null) {
+                //System.out.println("Successfully using long term compile..");
+                compiled = longTermCompile;
+            } else {
+                compiled = MVEL.compileExpression(piece.getReachablityEquation());
+            }
+        }
         while (foundNewMove) {
             foundNewMove = false;
             for (int x = 0; x < boardSize; x++) {
@@ -45,7 +60,7 @@ public class BoardGenerator {
                                 vars.put("y1", yInner);
                                 vars.put("y2", xInner);
                                 try {
-                                    Serializable compiled = MVEL.compileExpression(piece.getReachablityEquation());
+
                                     result = (Boolean) MVEL.executeExpression(compiled, vars);
                                     if (result) {
                                         if (!markerBoard[xInner][yInner]) {
@@ -67,6 +82,11 @@ public class BoardGenerator {
 
             i++;
         }
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board.length; y++) {
+                board[x][y] = board[x][y] - 1;
+            }
+        }
 
         obstacles.stream()
                 .forEach((obs) -> {
@@ -76,6 +96,15 @@ public class BoardGenerator {
         //printBoard(board);
         return board;
     }
+//
+//    public int[][] produceBasicDistance2D(int startX, int startY, int size) {
+//        int[][] outputMap = new int[size][size];
+//        for (int x = 0; x < size; x++) {
+//            for (int y = 0; y < size; y++) {
+//                outputMap
+//            }
+//        }
+//    }
 
     public void printBoard(int[][] input) {
         String outputBoard = "";
@@ -103,6 +132,16 @@ public class BoardGenerator {
         //printBoard(board, markerBoard);
         boolean foundNewMove = true;
         int i = 1;
+        if (!multipleRunFlag) {
+            compiled = MVEL.compileExpression(piece.getReachablityEquation());
+        } else {
+            if (longTermCompile != null) {
+                //System.out.println("Successfully using long term compile..");
+                compiled = longTermCompile;
+            } else {
+                compiled = MVEL.compileExpression(piece.getReachablityEquation());
+            }
+        }
         while (foundNewMove) {
             //System.out.println("i is: " + i);
             foundNewMove = false;
@@ -122,7 +161,6 @@ public class BoardGenerator {
                                         vars.put("y2", xInner);
                                         vars.put("y3", zInner);
                                         try {
-                                            Serializable compiled = MVEL.compileExpression(piece.getReachablityEquation());
                                             result = (Boolean) MVEL.executeExpression(compiled, vars);
                                             if (result) {
                                                 if (!markerBoard[xInner][yInner][zInner]) {
@@ -146,6 +184,13 @@ public class BoardGenerator {
             }
             //printBoard(board, markerBoard);
             i++;
+        }
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board.length; y++) {
+                for (int z = 0; z < board.length; z++) {
+                    board[x][y][z] = board[x][y][z] - 1;
+                }
+            }
         }
         //printBoard(board, markerBoard);
         obstacles.stream().forEach((obs) -> {

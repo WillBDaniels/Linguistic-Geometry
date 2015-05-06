@@ -18,7 +18,18 @@ public class Piece {
     private int[][] reachabilityTwoDMap;
     private String pieceType = "";
     private Image pieceImage;
+    private boolean graphicalReachability = false;
 
+    public boolean isGraphicalReachability() {
+        return graphicalReachability;
+    }
+
+    public void setGraphicalReachability(boolean graphicalReachability) {
+        this.graphicalReachability = graphicalReachability;
+    }
+
+
+    
     public int[][][] getReachabilityThreeDMap() {
         if (reachabilityThreeDMap == null && reachabilityTwoDMap != null) {
             //System.out.println("Generating 3d map");

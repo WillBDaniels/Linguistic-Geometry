@@ -2,13 +2,16 @@ package edu.wdaniels.lg.gui;
 
 import edu.wdaniels.lg.FieldValidator;
 import edu.wdaniels.lg.Main;
+import edu.wdaniels.lg.abg.ControlledGrammarFunctions;
 import edu.wdaniels.lg.abg.DistanceFinder;
 import edu.wdaniels.lg.abg.GrammarGt1;
 import edu.wdaniels.lg.abg.GrammarGz;
 import edu.wdaniels.lg.abg.Obstacle;
 import edu.wdaniels.lg.abg.Piece;
+import edu.wdaniels.lg.structures.DepthFirstSearch;
 import edu.wdaniels.lg.structures.Pair;
 import edu.wdaniels.lg.structures.TableData;
+import edu.wdaniels.lg.structures.TreeNode;
 import edu.wdaniels.lg.structures.Triple;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.mvel2.MVEL;
 
 /**
  *
@@ -90,6 +94,7 @@ public class PrimaryController {
      */
     @FXML
     public void initialize() {
+        tf_board_size.setText("8");
         controller = this;
         setInitialListeners();
     }
@@ -112,19 +117,30 @@ public class PrimaryController {
                 pi_indicator.setVisible(true);
 
             });
-            int count = 0;
             Piece start = (Piece) lv_traj_starting.getSelectionModel().getSelectedItem();
             Piece target = (Piece) lv_traj_target.getSelectionModel().getSelectedItem();
-            while (trajectoryList.size() < size * 5 && count < size * size) {
-                GrammarGt1 gt1 = new GrammarGt1(size, Integer.valueOf(tf_traj_length.getText()), start, target);
+            ControlledGrammarFunctions.trajectoryTree = new TreeNode(new Pair(null, true));
+            boolean beginning = true;
+            DepthFirstSearch dfs = new DepthFirstSearch();
+            BoardGenerator.multipleRunFlag = true;
+            BoardGenerator.longTermCompile = MVEL.compileExpression(start.getReachablityEquation());
+            GrammarGt1 gt1 = new GrammarGt1(size, Integer.valueOf(tf_traj_length.getText()), start, target);
+            while (beginning || dfs.dfs(ControlledGrammarFunctions.trajectoryTree)) {
+                ControlledGrammarFunctions.currentNode = null;
+
+                beginning = false;
+                //GrammarGt1 gt1 = new GrammarGt1(size, Integer.valueOf(tf_traj_length.getText()), start, target);
                 List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
 
                 if (!traj.isEmpty()) {
-                    System.out.println("adding trajectory..");
+                    System.out.println("adding trajectory.. currently on trajectory #: " + trajectoryList.size());
                     trajectoryList.add(traj);
                 }
-                count++;
             }
+            ControlledGrammarFunctions.currentNode = null;
+            ControlledGrammarFunctions.trajectoryTree = new TreeNode<>(new Pair(null, true));
+            BoardGenerator.multipleRunFlag = false;
+            BoardGenerator.longTermCompile = null;
             if (trajectoryList.isEmpty()) {
                 ta_error_pane.setText("I'm sorry, no trajectories of that length found, please check the distance pane and try again.");
                 Platform.runLater(() -> {
@@ -138,6 +154,7 @@ public class PrimaryController {
                     try {
                         if (displayTraj2D != null && displayTraj2D.isShowing()) {
                             displayTraj2D.requestFocus();
+
                             return;
                         }
                         displayTraj2D = new Stage(StageStyle.DECORATED);
@@ -151,6 +168,7 @@ public class PrimaryController {
                         //mainStage.setResizable(true);
                         displayTraj2D.show();
                     } catch (IOException ex) {
+                        ex.printStackTrace(System.err);
                         Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
@@ -172,6 +190,7 @@ public class PrimaryController {
                         //mainStage.setResizable(true);
                         displayTraj3D.show();
                     } catch (IOException ex) {
+                        ex.printStackTrace(System.err);
                         Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
@@ -206,10 +225,12 @@ public class PrimaryController {
                     boardSize = 15;
                 }
                 if (is2D) {
-                    if (boardSize == 15 && obstacleList.isEmpty()) {
-                        piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, true));
-                    } else {
-                        piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, false));
+                    if (!piece.isGraphicalReachability()){
+                        if (boardSize == 15 && obstacleList.isEmpty()) {
+                            piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, true));
+                        } else {
+                            piece.setReachabilityTwoDMap(gen.generate2DBoard(piece, obstacleList, boardSize, false));
+                        }
                     }
                 } else {
                     piece.setReachabilityThreeDMap(gen.generate3DBoard(piece, obstacleList, boardSize));
@@ -339,7 +360,7 @@ public class PrimaryController {
         //mainStage.getIcons().add(new Image(getClass().getResourceAsStream("images/programLogo128.png")));
         addPieceStage.setTitle("Add a new piece!");
         //mainStage.setResizable(true);
-        addPieceStage.show();
+        addPieceStage.showAndWait();
     }
 
     @FXML
@@ -365,7 +386,6 @@ public class PrimaryController {
         pi_indicator.setVisible(true);
         Thread t = new Thread(() -> {
             GrammarGz gz = new GrammarGz(start, target, trajectoryList.get(0), getBoardSize());
-            System.out.println("Generating zones...");
             List<Pair<List<Triple<Integer, Integer, Integer>>, Integer>> zone;
             zone = gz.produceZone();
             trajectoryList.clear();
@@ -395,7 +415,6 @@ public class PrimaryController {
         });
         t.start();
 
-        System.out.println("Done...?");
     }
 
     /**
@@ -487,7 +506,7 @@ public class PrimaryController {
                     protected void updateItem(Piece t, boolean bln) {
                         super.updateItem(t, bln);
                         if (t != null) {
-                            setText(t.getPieceName() + ": Location: " + t.getLocation() + " reachability: " + t.getReachablityEquation());
+                            setText(t.getPieceName() + ": Location: " + t.getLocation());
                         }
                     }
 
@@ -566,7 +585,7 @@ public class PrimaryController {
     private void generateMidtermBoard() {
         pieceList.clear();
         obstacleList.clear();
-        String kingRelation = "((y1-x1 <= 1) && (y1-x1 >= -1)) && ((y2-x2 <= 1) && (y2-x2 >= -1))";
+        String kingRelation = " ";
         String towerRelation = "((y1-x1 == 1) && (y1-x1 >= -1)) && ((y2-x2 == 1) && (y2-x2 >= -1))";
         String knightRelation = "(((y1-x1 == 1) || (x1-y1) == 1) && (((y2-x2 == 2) || (x2-y2 == 2)))) || (((y1-x1 == 2) || (x1 -y1 == 2))  && ((y2-x2 == 1) || (x2-y2 ==1)))";
 
@@ -576,10 +595,10 @@ public class PrimaryController {
 
         king = new Piece("black", new Triple(7, 0, 0), kingRelation, "Black King");
         wKnight = new Piece("white", new Triple(6, 5, 0), knightRelation, "White Knight");
-        btower1 = new Piece("black", new Triple(3, 7, 0), towerRelation, "Black Tower 1");
-        btower2 = new Piece("black", new Triple(7, 5, 0), towerRelation, "Black Tower 2");
         btower3 = new Piece("black", new Triple(6, 2, 0), towerRelation, "Black Tower 3");
         btower4 = new Piece("black", new Triple(4, 1, 0), towerRelation, "Black Tower 4");
+        btower1 = new Piece("black", new Triple(3, 7, 0), towerRelation, "Black Tower 1");
+        btower2 = new Piece("black", new Triple(7, 5, 0), towerRelation, "Black Tower 2");
         wtower1 = new Piece("white", new Triple(7, 2, 0), towerRelation, "White Tower 1");
         target = new Piece("white", new Triple(2, 1, 0), kingRelation, "Target");
         tf_board_size.setText("8");
@@ -587,9 +606,45 @@ public class PrimaryController {
         refreshPieceList();
     }
 
+    private void generateRetiEndgame() {
+        pieceList.clear();
+        obstacleList.clear();
+        Piece wKing, bKing, wPawn, bPawn, target1, target2;
+        String blackPawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == 1))";
+        String whitePawnRelation = "((y1-x1 == 0) ) && ((y2-x2 == -1))";
+        String kingRelation = "((y1-x1 <=1) && (y1-x1 >=-1)) && ((y2-x2 <=1) && (y2-x2 >=-1))";
+
+        Obstacle block1 = new Obstacle("BlockTest", new Triple(4, 4, 4));
+        obstacleList.add(block1);
+
+        bKing = new Piece("black", new Triple(0, 2, 0), kingRelation, "Black King");
+        bKing.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackKing.png")));
+
+        wPawn = new Piece("white", new Triple(2, 2, 0), whitePawnRelation, "White Pawn 0");
+        wPawn.setPieceImage(new Image(getClass().getResourceAsStream("../images/whitePawn.png")));
+
+        target1 = new Piece("black", new Triple(2, 0, 0), blackPawnRelation, "Black Base");
+        target1.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackRook.png")));
+
+        wKing = new Piece("white", new Triple(4, 3, 0), kingRelation, "White King");
+        wKing.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteKing.png")));
+
+        bPawn = new Piece("black", new Triple(7, 3, 0), blackPawnRelation, "Black Pawn");
+        bPawn.setPieceImage(new Image(getClass().getResourceAsStream("../images/blackPawn.png")));
+
+        target2 = new Piece("white", new Triple(7, 7, 0), blackPawnRelation, "White Base");
+        target2.setPieceImage(new Image(getClass().getResourceAsStream("../images/whiteRook.png")));
+
+        tf_board_size.setText("8");
+        pieceList.addAll(Arrays.asList(bKing, wPawn, target1, wKing, bPawn, target2));
+        refreshObstacleList();
+        refreshPieceList();
+    }
+
     @FXML
     private void generateTestBoard() {
         //generateMidtermBoard();
+        //generateRetiEndgame();
 
         pieceList.clear();
         obstacleList.clear();
@@ -680,6 +735,7 @@ public class PrimaryController {
         tf_board_size.setText("9");
         pieceList.addAll(Arrays.asList(wKing, bKing, wQueen, bQueen, wPawn0, wPawn1, wPawn2, wPawn3, wPawn4, wPawn5, wPawn6, wPawn7, bPawn0, bPawn1, bPawn2, bPawn3, bPawn4, bPawn5, bPawn6, bPawn7,
                 wBish0, wBish1, wKnight0, wKnight1, wRook0, wRook1, bBish0, bBish1, bKnight0, bKnight1, bRook0, bRook1));
+        //pieceList.addAll(Arrays.asList(wKing, bKing, wPawn0, bPawn0));
         refreshPieceList();
     }
 
@@ -811,19 +867,19 @@ public class PrimaryController {
                             if (((Piece) newValue) != piece) {
                                 if (Integer.parseInt(tf_board_size.getText()) == 8) {
                                     if (obstacleList.isEmpty() && is2D) {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece) - 1));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DChessDistance((Piece) newValue, piece)));
                                     } else {
                                         if (is2D) {
-                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece) - 1));
+                                            dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
                                         } else {
-                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece) - 1));
+                                            dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
                                         }
                                     }
                                 } else {
                                     if (is2D) {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece) - 1));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find2DDistance((Piece) newValue, piece)));
                                     } else {
-                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece) - 1));
+                                        dataList.add(new TableData(piece.getPieceName(), df.find3DDistance((Piece) newValue, piece)));
                                     }
                                 }
                             }

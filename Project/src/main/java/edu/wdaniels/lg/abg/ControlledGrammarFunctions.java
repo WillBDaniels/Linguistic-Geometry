@@ -2,10 +2,13 @@ package edu.wdaniels.lg.abg;
 
 import edu.wdaniels.lg.gui.BoardGenerator;
 import edu.wdaniels.lg.gui.PrimaryController;
+import edu.wdaniels.lg.structures.Pair;
+import edu.wdaniels.lg.structures.TreeNode;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.mvel2.MVEL;
 
 /**
  * This class is simply a collection of methods (functions) which are used
@@ -16,7 +19,11 @@ import java.util.Random;
  */
 public class ControlledGrammarFunctions {
 
+    //private Piece temp = null;
     private final boolean[][][] markerMap;
+    public static TreeNode<Pair<Triple<Integer, Integer, Integer>, Boolean>> trajectoryTree = new TreeNode<>(new Pair(null, true));
+    public static TreeNode<Pair<Triple<Integer, Integer, Integer>, Boolean>> currentNode = null;
+    private BoardGenerator bg = new BoardGenerator();
 
     public ControlledGrammarFunctions(boolean[][][] markerMap) {
         this.markerMap = markerMap;
@@ -56,17 +63,30 @@ public class ControlledGrammarFunctions {
         markerMap[originalLocation.getLocation().getSecond()][originalLocation.getLocation().getFirst()][originalLocation.getLocation().getThird()] = true;
         Triple pieceLocation = move(originalLocation, initialPiece, targetPiece, l, l0, i);
         Piece nextPiece = new Piece(originalLocation.getPieceType(), pieceLocation, originalLocation.getReachablityEquation(), originalLocation.getPieceName());
-        BoardGenerator bg = new BoardGenerator();
         if (pieceLocation == null) {
             return null;
         }
 
         if (PrimaryController.getController().is2D) {
-            nextPiece.setReachabilityTwoDMap(bg.generate2DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length, false));
+            if (originalLocation.isGraphicalReachability()){
+                nextPiece.setReachabilityTwoDMap(decrementMap(initialPiece.getReachabilityTwoDMap()));
+            }else{
+                nextPiece.setReachabilityTwoDMap(bg.generate2DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length, false));
+            }
         } else {
             nextPiece.setReachabilityThreeDMap(bg.generate3DBoard(nextPiece, obsList, originalLocation.getReachabilityTwoDMap().length));
         }
         return nextPiece;
+    }
+
+    private int[][] decrementMap(int[][] inputMap){
+        int[][] outputMap = new int[inputMap.length][inputMap.length];
+        for (int i = 0; i < inputMap.length; i++){
+            for (int y = 0; y < inputMap.length; y++){
+                outputMap[i][y] = inputMap[i][y] -1;
+            }
+        }
+        return outputMap;
     }
 
     public Triple<Integer, Integer, Integer> move(Piece originalLocation, Piece startLocation,
@@ -75,16 +95,7 @@ public class ControlledGrammarFunctions {
         sum = sum(originalLocation, targetLocation, l0);
         st1 = st(1, startLocation);
         st2 = st(l0 - l + 1, originalLocation);
-//         if (originalLocation.getPieceName().equalsIgnoreCase("black king")){
-//            System.out.println("Black king marker ma: ");
-//            printSummedMap(markerMap);
-//            System.out.println("st1 map: ");
-//            printSummedMap(st1);
-//            System.out.println("st2 map: ");
-//            printSummedMap(st2);
-//             System.out.println("sum map: ");
-//             printSummedMap(sum);
-//        }
+
         int length = st2.length;
         int choice;
         List<Triple<Integer, Integer, Integer>> availableOptions = new ArrayList<>();
@@ -93,53 +104,101 @@ public class ControlledGrammarFunctions {
             for (int y = 0; y < length; y++) {
                 for (int z = 0; z < length; z++) {
                     if ((sum[x][y][z] > 0) && (st1[x][y][z] > 0) && (st2[x][y][z] > 0)) {
-                        if (!markerMap[x][y][z]) {
-                            availableOptions.add(new Triple(y, x, z));
-                        }
+                        availableOptions.add(new Triple(y, x, z));
                     }
                 }
             }
         }
         if (availableOptions.isEmpty()) {
+            //We're ona leaf that has no more moves, so we set the 'visited' to true, since well.. it's true!
+            if (currentNode != null) {
+                currentNode.data.setSecond(true);
+            }
             return null;
         }
-        choice = randInt(0, availableOptions.size() - 1);
+        if (currentNode == null) {
+            currentNode = trajectoryTree;
+        }
+        boolean foundNewTriple = false;
+        TreeNode<Pair<Triple<Integer, Integer, Integer>, Boolean>> temp = currentNode;
+        if (currentNode.isRoot()) {
+            if (currentNode.children.isEmpty()) {
 
-        Triple<Integer, Integer, Integer> choiceTriple = availableOptions.get(choice);
-        markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
+                foundNewTriple = true;
+                for (Triple<Integer, Integer, Integer> option : availableOptions) {
+                    //add all the starting options to the root
+                    temp.addChild(new Pair(option, false));
 
-        return choiceTriple;
+                }
+
+                currentNode = temp.children.get(0);
+            } else {
+                for (TreeNode<Pair<Triple<Integer, Integer, Integer>, Boolean>> child : currentNode.children) {
+                    if (!child.data.getSecond()) {
+                        foundNewTriple = true;
+                        currentNode = child;
+                        break;
+                    }
+                }
+            }
+        } else {
+            if (currentNode.children.isEmpty() && !currentNode.data.getSecond()) {
+                //currentNode.data.setSecond(true);
+                foundNewTriple = true;
+                for (Triple<Integer, Integer, Integer> option : availableOptions) {
+                    //add all the starting options to the root
+                    temp.addChild(new Pair(option, false));
+                }
+                currentNode = temp.children.get(0);
+            } else {
+                for (TreeNode<Pair<Triple<Integer, Integer, Integer>, Boolean>> child : currentNode.children) {
+                    if (!child.data.getSecond()) {
+                        foundNewTriple = true;
+                        currentNode = child;
+                    }
+                }
+            }
+        }
+        if (!foundNewTriple) {
+            //all of the children have been visited.. so we leave this node alone from now on!
+            temp.data.setSecond(true);
+            return null;
+        }
+
+        //markerMap[choiceTriple.getSecond()][choiceTriple.getFirst()][choiceTriple.getThird()] = true;
+        return (currentNode.data.getFirst());
 
     }
 
     public int[][][] sum(Piece start, Piece target, int length) {
+        String kingRelation = "((y1-x1 <=1) && (y1-x1 >=-1)) && ((y2-x2 <=1) && (y2-x2 >=-1))";
+
         //We're really assuming the pieces come from the same board, and thus have
         //the same dimension. If they don't... well it'll break. tough luck.
-
         int[][][] startRp = start.getReachabilityThreeDMap();
-        int[][][] targetRp = target.getReachabilityThreeDMap();
+        BoardGenerator bgInner = new BoardGenerator();
+        BoardGenerator.multipleRunFlag = false;
+        BoardGenerator.longTermCompile = null;
+        Piece temp = new Piece("", target.getLocation(), kingRelation, "");
+        temp.setReachablityEquation(kingRelation);
+        temp.setReachabilityTwoDMap(bgInner.generate2DBoard(temp, new ArrayList<>(), PrimaryController.getController().getBoardSize(), false));
+        int[][][] targetRp = temp.getReachabilityThreeDMap();
+
         int[][][] summedMap = new int[startRp.length][startRp.length][startRp.length];
         for (int x = 0; x < startRp.length; x++) {
             for (int y = 0; y < startRp[x].length; y++) {
                 for (int z = 0; z < startRp[x][y].length; z++) {
-                    summedMap[x][y][z] = (startRp[x][y][z] - 1) + (targetRp[x][y][z] - 1);
+                    summedMap[x][y][z] = (startRp[x][y][z]) + (targetRp[x][y][z]);
 
-                    if (summedMap[x][y][z] != (length - 1)) {
+                    if (summedMap[x][y][z] != (length)) {
                         summedMap[x][y][z] = 0;
+                    }else{
+                        //System.out.println("sum isn't 0, it is: " + summedMap[x][y][z] + "  at : " + x + " , " + y  + " , " + z);
                     }
                 }
             }
         }
         return summedMap;
-    }
-
-    private void printSummedMap(int[][][] inputMap) {
-        for (int[][] inputMap1 : inputMap) {
-            for (int y = 0; y < inputMap.length; y++) {
-                System.out.print(inputMap1[y][0] + " ");
-            }
-            System.out.println("\n");
-        }
     }
 
     /**
@@ -185,9 +244,10 @@ public class ControlledGrammarFunctions {
         int[][][] pieceRp = startingLocation.getReachabilityThreeDMap();
         int[][][] matrix = new int[pieceRp.length][pieceRp.length][pieceRp.length];
         for (int x = 0; x < pieceRp.length; x++) {
-            for (int y = 0; y < pieceRp.length; y++) {
-                for (int z = 0; z < pieceRp.length; z++) {
-                    if (pieceRp[x][y][z] - 1 == radius && pieceRp[x][y][z] - 1 > 0) {
+            for (int y = 0; y < pieceRp[x].length; y++) {
+                for (int z = 0; z < pieceRp[x][y].length; z++) {
+                    if (pieceRp[x][y][z] == radius) {
+                        //System.out.println("Radius matched!: " + matrix[x][y][z] + " at: " + x + " , " + y + " , " + z);
                         matrix[x][y][z] = 1;
                     } else {
                         matrix[x][y][z] = 0;
@@ -300,10 +360,10 @@ public class ControlledGrammarFunctions {
         int n = PrimaryController.getController().getBoardSize();
         n = n * n;
         if (((u.getFirst() != n) && (u.getThird() > 0)) || ((u.getSecond() == n) && (u.getThird() <= 0))) {
-            System.out.println("Incrementing x, u is: " + u);
+            //System.out.println("Incrementing x, u is: " + u);
             return new Triple(u.getFirst() + 1, u.getSecond(), u.getThird());
         } else {
-            System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
+            //System.out.println("Here, incrementing y (and possibly setting l), u is: " + u);
             //due to the array indexing, normally, it's time(y+1), but that's 1-based, so mine is y+1 - 1 for each
             if (u.getSecond() + 1 > (n - 1)) {
                 return new Triple(1, n, 0);
@@ -378,9 +438,8 @@ public class ControlledGrammarFunctions {
         int innerl = l;
         boolean goingDown = true;
         while (outputTraj.isEmpty()) {
-            if (i > 20) {
-                System.out.println("stuff... fuck me ");
-            }
+            BoardGenerator.multipleRunFlag = true;
+            BoardGenerator.longTermCompile = MVEL.compileExpression(startingLocation.getReachablityEquation());
             GrammarGt1 gt1 = new GrammarGt1(PrimaryController.getController().getBoardSize(), innerl, startingLocation, targetLocation);
             List<Triple<Integer, Integer, Integer>> traj = gt1.produceTrajectory();
             if (traj.size() > 0) {
@@ -398,6 +457,10 @@ public class ControlledGrammarFunctions {
             }
             i++;
         }
+        ControlledGrammarFunctions.currentNode = null;
+        ControlledGrammarFunctions.trajectoryTree = new TreeNode<>(new Pair(null, true));
+        BoardGenerator.multipleRunFlag = false;
+        BoardGenerator.longTermCompile = null;
         if (choice < outputTraj.size()) {
             //outputTraj.get(choice).remove(0);
             return outputTraj.get(choice);
@@ -409,6 +472,8 @@ public class ControlledGrammarFunctions {
         }
     }
 
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //********************************************************************************
     public class u {
 
         private int x;

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -32,10 +33,6 @@ public class DisplayTrajBoard {
         displayPieceMap((Piece) PrimaryController.getController().lv_traj_starting.getSelectionModel().getSelectedItem());
     }
 
-    public void setPieceImages(List<Pair<Triple<Integer, Integer, Integer>, Image>> inputImages) {
-        this.imageList = inputImages;
-    }
-
     public void displayPieceMap(Piece piece) {
         int size = PrimaryController.getController().getBoardSize();
         ChessBoard cb2 = null;
@@ -50,10 +47,6 @@ public class DisplayTrajBoard {
             List<Circle> tempList = new ArrayList<>();
             for (Triple location : PrimaryController.getController().trajectoryList.get(j)) {
                 temp = new Circle(3);
-//                if (cb2 != null) {
-//                    temp.setLayoutX(((7 - (Integer) location.getThird()) * 40) + 20);
-//                    temp.setLayoutY(((7 - (Integer) location.getSecond()) * 40) + 20);
-//                } else {
                 temp.setLayoutX(((Integer) location.getThird() * 40) + 20);
                 temp.setLayoutY(((Integer) location.getSecond() * 40) + 20);
 
@@ -105,7 +98,17 @@ public class DisplayTrajBoard {
         for (Line line : lineList) {
             ap.getChildren().add(line);
         }
-
+        AnchorPane piecePane = new AnchorPane();
+        for (Piece pieces : PrimaryController.getController().pieceList) {
+            ImageView tempView = new ImageView(pieces.getPieceImage());
+            tempView.setX((pieces.getLocation().getFirst() * 40));
+            tempView.setY((pieces.getLocation().getSecond()) * 40);
+            tempView.setPreserveRatio(false);
+            tempView.setFitWidth(40);
+            tempView.setFitHeight(40);
+            piecePane.getChildren().add(tempView);
+        }
+        pane_main_grid.getChildren().add(piecePane);
         pane_main_grid.getChildren()
                 .add(ap);
 

@@ -43,9 +43,17 @@ public class Display2DController {
 
         }
         AnchorPane pane2 = new AnchorPane();
+
         ImageView temp = new ImageView(piece.getPieceImage());
-        temp.setX((piece.getLocation().getFirst() * 40));
-        temp.setY((piece.getLocation().getSecond()) * 40);
+        if (cb2 != null) {
+            int x = new Double(Math.ceil(15 / 2)).intValue();
+            int y = new Double(Math.ceil(15 / 2)).intValue();
+            temp.setX((x * 40));
+            temp.setY(y * 40);
+        } else {
+            temp.setX((piece.getLocation().getFirst() * 40));
+            temp.setY((piece.getLocation().getSecond()) * 40);
+        }
         temp.setPreserveRatio(false);
         temp.setFitWidth(40);
         temp.setFitHeight(40);

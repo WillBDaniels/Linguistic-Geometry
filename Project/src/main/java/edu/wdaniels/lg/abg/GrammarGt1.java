@@ -81,11 +81,10 @@ public class GrammarGt1 {
         return outputStep;
     }
 
-    
-    public boolean hasMoreTrajectories(){
+    public boolean hasMoreTrajectories() {
         return true;
     }
-    
+
     /**
      * This is the primary public facing method that is used to collect the
      * trajectory points into a single 'trajectory' woo.
@@ -94,6 +93,7 @@ public class GrammarGt1 {
      * then there must not have been any trajectories (unreachable piece)
      */
     public List<Triple<Integer, Integer, Integer>> produceTrajectory() {
+        l = l0;
         List<Triple<Integer, Integer, Integer>> outputTrajectory = new ArrayList<>();
         Triple<Integer, Integer, Integer> tempLoc;
         S start = new S(startPiece, targetPiece, l0);
@@ -106,11 +106,14 @@ public class GrammarGt1 {
                 break;
             }
             switch (currentStep) {
-                case Q1:{
+                case Q1: {
                     temp = new A(start.x, start.y, start.l);
                     break;
                 }
-                case Q2:{
+                case Q2: {
+                    if (temp.x == null) {
+                        return outputTrajectory;
+                    }
                     tempLoc = temp.x.getLocation();
                     outputTrajectory.add(new Triple(tempLoc.getThird(), tempLoc.getSecond(),
                             tempLoc.getFirst()));
@@ -119,13 +122,19 @@ public class GrammarGt1 {
                     l = temp.l;
                     break;
                 }
-                case Q3:{
+                case Q3: {
                     tempLoc = temp.y.getLocation();
                     outputTrajectory.add(new Triple(tempLoc.getThird(), tempLoc.getSecond(),
                             tempLoc.getFirst()));
                     break;
                 }
             }
+        }
+        if (ControlledGrammarFunctions.currentNode != null) {
+            ControlledGrammarFunctions.currentNode.data.setSecond(true);
+        }
+        if (outputTrajectory.size() < l) {
+            outputTrajectory.clear();
         }
         return outputTrajectory;
     }
@@ -138,16 +147,12 @@ public class GrammarGt1 {
      * @return
      */
     private int getMapDistance(Piece startPiece, Piece targetPiece) {
-        int x = targetPiece.getLocation().getSecond();
-        int y = targetPiece.getLocation().getFirst();
-        int z = targetPiece.getLocation().getThird();
-//        if (PrimaryController.getController().is2D && PrimaryController.getController().obstacleList.isEmpty()
-//                && ((Integer.valueOf(PrimaryController.getController().tf_board_size.getText()) == 8))) {
-//            DistanceFinder df = new DistanceFinder();
-//            return df.find2DChessDistance(startPiece, targetPiece);
-//        }
-        //System.out.println("We're looking for the piece at: " + x + " , " + y + " , " + z + " which is: " + startPiece.getReachabilityThreeDMap()[x][y][z]);
-        //startPiece.print3DBoard();
+        int x, y, z;
+
+        x = targetPiece.getLocation().getSecond();
+        y = targetPiece.getLocation().getFirst();
+        z = targetPiece.getLocation().getThird();
+
         if (startPiece.getReachabilityThreeDMap()[x][y][z] > 0) {
             return startPiece.getReachabilityThreeDMap()[x][y][z];
         } else {

@@ -232,9 +232,6 @@ public class GrammarGz {
                     outputStep = Step.Q3;
                     break;
                 }
-                if (currentPiece.getPieceName().equalsIgnoreCase("white king")) {
-                    System.out.println("King!");
-                }
                 if (((currentA.getU().getThird() > 0) && (currentA.u.getFirst() != x0) && (currentA.u.getFirst() != y0))
                         && ((!cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) == 1)
                         || (cgf.OPPOSE(currentPiece, currentTargetPiece) && cgf.MAP(currentPiece, currentTargetPiece) <= currentA.getU().getThird()

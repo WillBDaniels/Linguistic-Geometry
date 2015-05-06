@@ -3,7 +3,7 @@ package edu.wdaniels.lg.gui;
 import edu.wdaniels.lg.structures.Triple;
 import java.util.List;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 
 /**
  *
@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 public class Display3DTrajController {
 
     @FXML
-    private Label lbl_3dTraj_main;
+    private TextArea lbl_3dTraj_main;
 
     @FXML
     private void initialize() {

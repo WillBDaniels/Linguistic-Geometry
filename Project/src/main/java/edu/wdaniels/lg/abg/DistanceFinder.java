@@ -22,6 +22,6 @@ public class DistanceFinder {
     }
 
     public int find3DDistance(Piece piece1, Piece piece2) {
-        return piece1.getReachabilityThreeDMap()[piece2.getLocation().getThird()][piece2.getLocation().getSecond()][piece2.getLocation().getFirst()];
+        return piece1.getReachabilityThreeDMap()[piece2.getLocation().getSecond()][piece2.getLocation().getFirst()][piece2.getLocation().getThird()];
     }
 }

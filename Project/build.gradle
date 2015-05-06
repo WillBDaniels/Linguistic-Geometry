@@ -7,9 +7,9 @@ apply plugin: 'maven'
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 def mainClassName = "edu.wdaniels.lg.Main"
-def mainAppName = "LG Project 3"
-def versionNumber = "3.0"
-version = "3.0"
+def mainAppName = "AI Extra Credit Project"
+def versionNumber = "4.0"
+version = "4.0"
 
 jfxJar.enabled = false;
 jfxCopyLibs.enabled = false;
@@ -46,9 +46,6 @@ javafx {
     height = 600
     embedJNLP = false
     jvmArgs = ['-Xmx1024m']
-    icons {
-        shortcut = ['icons/programLogo16.png', 'icons/programLogo32.png', 'icons/programLogo128.png']
-    }
 
     // deplpy/info attributes
     category = 'production'

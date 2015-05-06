@@ -27,6 +27,7 @@
                   <Insets top="5.0" />
                </padding>
             </Label>
+            <CheckBox fx:id="cb_add_graphical" mnemonicParsing="false" onAction="#toggleGraphicsButton" styleClass="basicLabel" text="Make Reachability Graphically" textFill="WHITE" />
          </children>
       </HBox>
         <HBox prefHeight="34.0" prefWidth="437.0" spacing="10.0">
@@ -46,6 +47,7 @@
         <AnchorPane prefHeight="25.0" prefWidth="513.0">
             <children>
                 <Button fx:id="btn_add_piece" layoutX="222.0" mnemonicParsing="false" onAction="#addNewPiece" text="Add Piece" />
+            <Button fx:id="btn_display_graphic" layoutX="343.0" mnemonicParsing="false" onAction="#displayGraphicalReachability" text="Choose Reachability" visible="false" />
             </children>
         </AnchorPane>
     </children>

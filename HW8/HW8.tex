@@ -31,11 +31,18 @@
 \section*{William Daniels}
 \section*{CSCI 4630}
 \subsection*{Linguistic Geometry}
-\subsection*{Homework \#1 01/21/15}
+\subsection*{Homework \#8 04/04/15}
 \end{center}
 
 \vspace{.25cm}
 
+\begin{enumerate} 
+\item First, the MV and CUT for simple hill climbing: 
+For MV, the algorithm would check the heuristic value of each triple (P, X, Y) produced by MOVE, and then whichever heuristic value was closest (but still better) than the current evaluated value. -1 would be returned if nothing was greater than the current value. CUT for simple hill climbing would be a simple check to see if MV = -1, since that would tell whether or not it had 'plateued' (reach either a local or global max). This would be susceptible to not finding the global maximum, but that's simply a trait of the simple hill climbing. 
+\item Second the MV and CUT for steepest-ascent hill climbing it's very similar to the one for simple hill climbing, except the goal state would have a defined heuristic 'value' of some sort (aka: the solution is known), and then at each step MV would check all of the current successive triples produced by MOVE, and then would pick the one which was closest to the solution value. (aka, the highest-valued 'steepest' choice). The function CUT would be identical for this as before, since the function MV would return -1 if no closer node to the solution can be found. 
+
+\item
+\end{enumerate}
 
 
 
