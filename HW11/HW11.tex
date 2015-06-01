@@ -31,13 +31,15 @@
 \section*{William Daniels}
 \section*{CSCI 4630}
 \subsection*{Linguistic Geometry}
-\subsection*{Homework \#1 01/21/15}
+\subsection*{Homework \#11 05/14/15}
 \end{center}
 
 \vspace{.25cm}
 
-
-
+\begin{enumerate}
+\item For the 2D/4A serial Reti problem for an arbitrary start state, the only real change to how the strategy is developed is you would have to look at the different zones, measure the time values for all of the first negation trajectories, and then move around the 4-squre graph (the state space chart) to accomodate the specific situation. In general, to try and 'decide' how to place all of the different pieces, you would use things like the postiional advantage, material advantage, general safety of a zone, the amount of time it would take for first and second negation trajectories to reach the target, locations of gateways, etc. etc. But the general approach would be almost the same as in class. 
+\item For the 3D problem, it turns a little more complicated. In the example produced in class, we created a 'b zone' and a 'w zone', two each. Now, this worked fine for the 2D problem, since we were modeling a 2 dimensional world, and the model fit. However, once you go into 3 dimensions, the interactions can become a lot more complicated, and you probably can't reflect all of the different states with only 4 squares. And rather than trying to represent a 3 dimensional interaction on a 2d board, it'd be much simpler to simply take a cube, divvy it up into 8 equal sized 'minicubes' which each represent different states. To make it even simpler, you can make a 'row of cubes' for each 2-dimensional 'slice' of the 3D board, which allows you to decompose the 3D problem into a lot of separate, smaller, 2D problems. Any overlap should just simply be reflected in the various zones created. 
+\end{enumerate}
 
 
 
